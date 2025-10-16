@@ -1,0 +1,12 @@
+grpcio==1.60.0
+grpcio-tools==1.60.0
+google-generativeai==0.3.2
+langchain==0.1.0
+langchain-google-genai==0.0.6
+langgraph==0.0.20
+fastapi==0.109.0
+uvicorn==0.27.0
+python-dotenv==1.0.0
+Pillow==10.2.0
+numpy==1.26.3
+pydantic==2.5.3

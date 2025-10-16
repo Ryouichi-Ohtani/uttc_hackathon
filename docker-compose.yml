@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ecomate-db
+    environment:
+      POSTGRES_USER: ecomate
+      POSTGRES_PASSWORD: ecomate_password
+      POSTGRES_DB: ecomate_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecomate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecomate"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ecomate-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=ecomate
+      - DB_PASSWORD=ecomate_password
+      - DB_NAME=ecomate_db
+      - DB_SSLMODE=disable
+      - JWT_SECRET=your-super-secret-jwt-key-dev
+      - JWT_EXPIRATION_HOURS=72
+      - AI_SERVICE_URL=ai-service:50051
+      - GIN_MODE=debug
+      - ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    networks:
+      - ecomate-network
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: ecomate-ai
+    ports:
+      - "50051:50051"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GRPC_PORT=50051
+      - ENV=development
+    networks:
+      - ecomate-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ecomate-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080/v1
+    depends_on:
+      - backend
+    networks:
+      - ecomate-network
+
+networks:
+  ecomate-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

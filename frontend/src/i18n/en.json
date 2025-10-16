@@ -1,0 +1,51 @@
+{
+  "common": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success"
+  },
+  "navigation": {
+    "home": "Home",
+    "products": "Products",
+    "messages": "Messages",
+    "profile": "Profile",
+    "favorites": "Favorites",
+    "leaderboard": "Leaderboard",
+    "notifications": "Notifications"
+  },
+  "product": {
+    "title": "Product Title",
+    "description": "Description",
+    "price": "Price",
+    "category": "Category",
+    "condition": "Condition",
+    "seller": "Seller",
+    "buyNow": "Buy Now",
+    "makeOffer": "Make Offer",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "co2Saved": "CO₂ Saved",
+    "viewCount": "Views",
+    "favoriteCount": "Favorites"
+  },
+  "sustainability": {
+    "dashboard": "Sustainability Dashboard",
+    "totalCO2Saved": "Total CO₂ Saved",
+    "level": "Level",
+    "achievements": "Achievements",
+    "monthlyStats": "Monthly Statistics",
+    "equivalentTrees": "Equivalent Trees Planted",
+    "carKmAvoided": "Car Kilometers Avoided"
+  }
+}
