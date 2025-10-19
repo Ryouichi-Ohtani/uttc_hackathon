@@ -28,8 +28,7 @@ export const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🌱</div>
-          <h1 className="text-3xl font-bold text-gray-900">EcoMate</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Automate</h1>
           <p className="text-gray-600 mt-2">Welcome back! Login to your account</p>
         </div>
 
@@ -72,7 +71,7 @@ export const Login = () => {
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
-          Join the sustainability movement 🌍
+          Join the sustainability movement
         </div>
       </Card>
     </div>

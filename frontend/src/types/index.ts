@@ -5,9 +5,7 @@ export interface User {
   display_name: string
   avatar_url?: string
   bio?: string
-  sustainability_score: number
-  total_co2_saved_kg: number
-  level: number
+  role: string
   created_at: string
   updated_at: string
 }
@@ -27,7 +25,6 @@ export interface Product {
   estimated_manufacturing_year?: number
   ai_generated_description?: string
   ai_suggested_price?: number
-  co2_impact_kg: number
   view_count: number
   favorite_count: number
   has_3d_model: boolean
@@ -59,7 +56,6 @@ export interface Purchase {
   seller_id: string
   seller?: User
   price: number
-  co2_saved_kg: number
   status: 'pending' | 'completed' | 'cancelled'
   payment_method?: string
   shipping_address?: string
@@ -115,46 +111,27 @@ export interface UserAchievement {
   earned_at: string
 }
 
+// Deprecated - kept for compatibility
 export interface SustainabilityLog {
   id: string
   user_id: string
   purchase_id?: string
   action_type: 'purchase' | 'sale'
-  co2_saved_kg: number
   description: string
   created_at: string
 }
 
 export interface DashboardData {
-  total_co2_saved_kg: number
-  level: number
-  sustainability_score: number
-  next_level_threshold: number
   achievements: UserAchievement[]
   recent_logs: SustainabilityLog[]
   monthly_stats: {
-    current_month_co2_saved: number
     transactions: number
-  }
-  comparisons: {
-    equivalent_trees: number
-    car_km_avoided: number
   }
 }
 
 export interface LeaderboardEntry {
   rank: number
   user: User
-  total_co2_saved_kg: number
-  sustainability_score: number
-  level: number
-}
-
-export interface CO2Comparison {
-  buying_new_kg: number
-  buying_used_kg: number
-  saved_kg: number
-  equivalent_trees: number
 }
 
 export interface PaginationResponse {

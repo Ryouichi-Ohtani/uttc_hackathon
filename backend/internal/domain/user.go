@@ -23,9 +23,6 @@ type User struct {
 	AvatarURL          string     `json:"avatar_url"`
 	Bio                string     `json:"bio"`
 	Role               UserRole   `json:"role" gorm:"default:'user'"`
-	SustainabilityScore int       `json:"sustainability_score" gorm:"default:0"`
-	TotalCO2SavedKg    float64    `json:"total_co2_saved_kg" gorm:"type:decimal(10,2);default:0.00"`
-	Level              int        `json:"level" gorm:"default:1"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 	DeletedAt          *time.Time `json:"-" gorm:"index"`
@@ -66,7 +63,7 @@ type RegisterRequest struct {
 	Email       string `json:"email" binding:"required,email"`
 	Username    string `json:"username" binding:"required,min=3,max=30"`
 	Password    string `json:"password" binding:"required,min=8"`
-	DisplayName string `json:"display_name" binding:"required,min=1,max=100"`
+	DisplayName string `json:"display_name" binding:"omitempty,min=1,max=100"`
 }
 
 // LoginRequest represents user login input

@@ -55,7 +55,7 @@ export const ImageUpload = ({
         formData.append('images', file)
       })
 
-      const response = await api.post('/v1/upload/images', formData, {
+      const response = await api.post('/upload/images', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

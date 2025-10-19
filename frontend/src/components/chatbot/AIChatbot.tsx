@@ -25,7 +25,7 @@ export const AIChatbot = ({ isOpen, onClose }: AIChatbotProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'こんにちは！EcoMateのAIアシスタントです🌱\n\n商品探しやエコに関する質問など、何でもお手伝いします！'
+      content: 'こんにちは！AutomateのAIアシスタントです\n\n商品探しやエコに関する質問など、何でもお手伝いします！'
     }
   ])
   const [input, setInput] = useState('')
@@ -102,7 +102,6 @@ export const AIChatbot = ({ isOpen, onClose }: AIChatbotProps) => {
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">💬</span>
           <div>
             <h3 className="font-semibold">AIアシスタント</h3>
             <p className="text-xs text-green-100">powered by Gemini</p>
@@ -112,7 +111,7 @@ export const AIChatbot = ({ isOpen, onClose }: AIChatbotProps) => {
           onClick={onClose}
           className="text-white hover:bg-white/20 rounded-full p-2 transition"
         >
-          ✕
+          ×
         </button>
       </div>
 
@@ -136,8 +135,7 @@ export const AIChatbot = ({ isOpen, onClose }: AIChatbotProps) => {
                 >
                   {msg.role === 'assistant' && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">🌱</span>
-                      <span className="text-xs font-semibold text-primary-600">EcoMate AI</span>
+                      <span className="text-xs font-semibold text-primary-600">Automate AI</span>
                     </div>
                   )}
                   <p className="text-sm whitespace-pre-wrap">{text}</p>
@@ -153,17 +151,17 @@ export const AIChatbot = ({ isOpen, onClose }: AIChatbotProps) => {
                         className="w-full bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow flex items-center gap-3 text-left"
                       >
                         <img
-                          src={product.imageUrl || 'https://via.placeholder.com/80x80/10B981/FFFFFF?text=EcoMate'}
+                          src={product.imageUrl || 'https://via.placeholder.com/80x80/10B981/FFFFFF?text=Automate'}
                           alt={product.name}
                           className="w-16 h-16 object-cover rounded"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
-                            target.src = 'https://via.placeholder.com/80x80/10B981/FFFFFF?text=EcoMate'
+                            target.src = 'https://via.placeholder.com/80x80/10B981/FFFFFF?text=Automate'
                           }}
                         />
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-gray-900">{product.name}</p>
-                          <p className="text-xs text-primary-600 mt-1">→ 商品詳細を見る</p>
+                          <p className="text-xs text-primary-600 mt-1">商品詳細を見る</p>
                         </div>
                       </button>
                     ))}

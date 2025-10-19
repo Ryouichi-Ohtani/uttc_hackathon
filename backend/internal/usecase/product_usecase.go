@@ -86,20 +86,6 @@ func (uc *ProductUseCase) CreateProduct(
 		product.WeightKg = analysisResp.EstimatedWeightKg
 		product.ManufacturerCountry = analysisResp.ManufacturerCountry
 		product.EstimatedManufacturingYear = analysisResp.EstimatedManufacturingYear
-		product.CO2ImpactKg = analysisResp.CO2ImpactKg
-	} else if uc.aiClient != nil {
-		// Calculate CO2 impact without full analysis
-		co2Req := &infrastructure.CO2CalculationRequest{
-			Category:            req.Category,
-			WeightKg:            req.WeightKg,
-			ManufacturerCountry: product.ManufacturerCountry,
-			ManufacturingYear:   product.EstimatedManufacturingYear,
-		}
-
-		co2Resp, err := uc.aiClient.CalculateCO2Impact(ctx, co2Req)
-		if err == nil {
-			product.CO2ImpactKg = co2Resp.SavedKg
-		}
 	}
 
 	// Create product images
@@ -145,17 +131,9 @@ func (uc *ProductUseCase) ListProducts(filters *domain.ProductFilters) ([]*domai
 	return uc.productRepo.List(filters)
 }
 
-func (uc *ProductUseCase) GetCO2Comparison(product *domain.Product) *domain.CO2Comparison {
-	savedKg := product.CO2ImpactKg
-	buyingNewKg := savedKg / 0.33 // Assuming used = 33% of new emissions
-	buyingUsedKg := buyingNewKg - savedKg
-
-	return &domain.CO2Comparison{
-		BuyingNewKg:     buyingNewKg,
-		BuyingUsedKg:    buyingUsedKg,
-		SavedKg:         savedKg,
-		EquivalentTrees: savedKg / 20, // 1 tree absorbs ~20kg CO2/year
-	}
+func (uc *ProductUseCase) GetCO2Comparison(product *domain.Product) interface{} {
+	// CO2 comparison feature has been removed
+	return nil
 }
 
 // List is a wrapper for ListProducts for compatibility

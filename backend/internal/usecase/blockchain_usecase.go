@@ -55,7 +55,7 @@ func (u *blockchainUseCase) RecordPurchaseOnChain(purchaseID uuid.UUID) (*domain
 		BlockNumber:     int64(time.Now().Unix()), // Mock block number
 		ChainID:         "ecomate-chain-1",
 		Status:          "confirmed",
-		CO2TokenAmount:  purchase.CO2SavedKg,
+		CO2TokenAmount:  0, // CO2 feature removed
 	}
 
 	now := time.Now()

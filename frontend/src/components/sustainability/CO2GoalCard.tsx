@@ -90,7 +90,6 @@ export const CO2GoalCard = () => {
     return (
       <Card>
         <div className="text-center py-6">
-          <div className="text-4xl mb-3">🎯</div>
           <h3 className="text-lg font-semibold mb-2">CO2削減目標を設定しましょう！</h3>
           <p className="text-gray-600 text-sm mb-4">
             目標を設定して、エコな買い物を習慣化しましょう
@@ -168,7 +167,7 @@ export const CO2GoalCard = () => {
 
   const statusText =
     goal!.status === 'completed'
-      ? '達成！🎉'
+      ? '達成！'
       : goal!.status === 'expired'
       ? '期限切れ'
       : `あと${daysLeft}日`
@@ -177,7 +176,7 @@ export const CO2GoalCard = () => {
     <Card>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">🎯 CO2削減目標</h3>
+          <h3 className="text-lg font-semibold">CO2削減目標</h3>
           <span className={`px-3 py-1 rounded-full text-white text-sm ${statusColor}`}>
             {statusText}
           </span>
@@ -220,7 +219,7 @@ export const CO2GoalCard = () => {
 
         {goal!.status === 'completed' && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <p className="text-green-800 font-semibold">🎊 目標達成おめでとうございます！</p>
+            <p className="text-green-800 font-semibold">目標達成おめでとうございます！</p>
             <p className="text-sm text-green-600 mt-1">
               地球環境のために素晴らしい貢献をしました
             </p>
@@ -230,7 +229,7 @@ export const CO2GoalCard = () => {
         {goal!.status === 'active' && progress < 100 && (
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-3">
             <p className="text-sm text-primary-800">
-              💪 あと{(goal!.target_kg - goal!.current_kg).toFixed(1)}kg削減で目標達成です！
+              あと{(goal!.target_kg - goal!.current_kg).toFixed(1)}kg削減で目標達成です！
             </p>
           </div>
         )}

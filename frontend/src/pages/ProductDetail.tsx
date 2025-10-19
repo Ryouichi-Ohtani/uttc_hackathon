@@ -23,6 +23,8 @@ export const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [activeTab, setActiveTab] = useState<'2d' | '3d' | 'ar'>('2d')
   const [showOfferDialog, setShowOfferDialog] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriting, setFavoriting] = useState(false)
 
   useEffect(() => {
     if (id) loadProduct()
@@ -51,6 +53,28 @@ export const ProductDetail = () => {
     }
   }
 
+  const handleToggleFavorite = async () => {
+    if (!product || favoriting) return
+
+    try {
+      setFavoriting(true)
+      if (isFavorited) {
+        await productService.removeFavorite(product.id)
+        setIsFavorited(false)
+        toast.success('いいねを解除しました')
+      } else {
+        await productService.addFavorite(product.id)
+        setIsFavorited(true)
+        toast.success('いいねしました！')
+      }
+    } catch (error: any) {
+      console.error('Favorite toggle error:', error)
+      toast.error('いいねの更新に失敗しました')
+    } finally {
+      setFavoriting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -61,8 +85,7 @@ export const ProductDetail = () => {
 
   if (!product) return null
 
-  const co2Comparison = productService.getCO2Comparison(product)
-  const currentImage = product.images[selectedImage]
+  const currentImage = product.images?.[selectedImage] || null
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -80,7 +103,7 @@ export const ProductDetail = () => {
                   activeTab === '2d' ? 'bg-primary-500 text-white' : 'bg-gray-200'
                 }`}
               >
-                📷 2D
+                2D
               </button>
               <button
                 onClick={() => setActiveTab('3d')}
@@ -88,7 +111,7 @@ export const ProductDetail = () => {
                   activeTab === '3d' ? 'bg-primary-500 text-white' : 'bg-gray-200'
                 }`}
               >
-                🎮 3D
+                3D
               </button>
               <button
                 onClick={() => setActiveTab('ar')}
@@ -96,7 +119,7 @@ export const ProductDetail = () => {
                   activeTab === 'ar' ? 'bg-primary-500 text-white' : 'bg-gray-200'
                 }`}
               >
-                📸 AR
+                AR
               </button>
             </div>
 
@@ -105,17 +128,17 @@ export const ProductDetail = () => {
               <>
                 <Card padding="none" className="overflow-hidden mb-4">
                   <img
-                    src={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=EcoMate')}
+                    src={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate')}
                     alt={product.title}
                     className="w-full h-96 object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
-                      target.src = 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=EcoMate'
+                      target.src = 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate'
                     }}
                   />
                 </Card>
                 <div className="grid grid-cols-4 gap-2">
-                  {product.images.map((img, idx) => (
+                  {product.images?.map((img, idx) => (
                     <button
                       key={img.id}
                       onClick={() => setSelectedImage(idx)}
@@ -124,12 +147,12 @@ export const ProductDetail = () => {
                       }`}
                     >
                       <img
-                        src={(img.cdn_url && img.cdn_url.trim() !== '') ? img.cdn_url : (img.image_url || 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=EcoMate')}
+                        src={(img.cdn_url && img.cdn_url.trim() !== '') ? img.cdn_url : (img.image_url || 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=Automate')}
                         alt=""
                         className="w-full h-20 object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
-                          target.src = 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=EcoMate'
+                          target.src = 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=Automate'
                         }}
                       />
                     </button>
@@ -148,7 +171,7 @@ export const ProductDetail = () => {
 
             {activeTab === 'ar' && (
               <ARTryOn
-                productImage={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=EcoMate')}
+                productImage={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate')}
                 productName={product.title}
                 category={product.category}
               />
@@ -180,54 +203,12 @@ export const ProductDetail = () => {
               )}
             </div>
 
-            {/* CO2 Impact */}
-            <Card className="bg-gradient-to-r from-green-50 to-primary-50">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl">🌱</span>
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-900">
-                    Environmental Impact
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Buying this saves the planet!
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Buying new:</span>
-                  <span className="font-medium">
-                    {co2Comparison.buying_new_kg.toFixed(1)}kg CO2
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Buying used:</span>
-                  <span className="font-medium">
-                    {co2Comparison.buying_used_kg.toFixed(1)}kg CO2
-                  </span>
-                </div>
-                <div className="flex justify-between text-lg font-bold text-primary-600 pt-2 border-t border-primary-200">
-                  <span>You save:</span>
-                  <span>{co2Comparison.saved_kg.toFixed(1)}kg CO2</span>
-                </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-white/50 rounded-lg text-sm">
-                <p className="text-gray-700">
-                  That's like planting{' '}
-                  <strong>{co2Comparison.equivalent_trees.toFixed(2)} trees</strong> 🌳
-                </p>
-              </div>
-            </Card>
-
             {/* Description */}
             <Card>
               <h3 className="font-semibold text-lg mb-2">Description</h3>
               <p className="text-gray-700 whitespace-pre-wrap">{product.description}</p>
               {product.ai_generated_description && (
                 <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
-                  <span>✨</span>
                   <span>AI-generated description</span>
                 </div>
               )}
@@ -250,10 +231,7 @@ export const ProductDetail = () => {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded">
-                        Level {product.seller.level}
-                      </span>
-                      <span className="text-xs text-gray-600">
-                        {product.seller.total_co2_saved_kg.toFixed(0)}kg CO2 saved
+                        AI User
                       </span>
                     </div>
                   </div>
@@ -264,8 +242,17 @@ export const ProductDetail = () => {
             {/* Actions */}
             <div className="space-y-3">
               <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleToggleFavorite}
+                  disabled={favoriting}
+                  className="flex-shrink-0"
+                >
+                  {isFavorited ? 'いいね済' : 'いいね'}
+                </Button>
                 <Button className="flex-1" size="lg" onClick={handleMessageSeller}>
-                  💬 メッセージ
+                  メッセージ
                 </Button>
                 <Button
                   variant="primary"
@@ -273,7 +260,7 @@ export const ProductDetail = () => {
                   size="lg"
                   onClick={() => navigate(`/purchase/${product.id}`)}
                 >
-                  🛒 購入する
+                  購入する
                 </Button>
               </div>
 
@@ -283,7 +270,7 @@ export const ProductDetail = () => {
                 size="lg"
                 onClick={() => setShowOfferDialog(true)}
               >
-                💰 価格交渉をする
+                価格交渉をする
               </Button>
             </div>
           </div>

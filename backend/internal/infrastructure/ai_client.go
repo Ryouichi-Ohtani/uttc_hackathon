@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -362,4 +363,405 @@ func (c *AIClient) ModerateContent(ctx context.Context, req *ContentModerationRe
 	}
 
 	return response, nil
+}
+
+// NegotiationArgument represents an AI-generated negotiation argument
+type NegotiationArgument struct {
+	Message       string
+	ProposedPrice int
+}
+
+// GenerateBuyerNegotiationArgument generates a buyer's negotiation argument using Gemini
+func (c *AIClient) GenerateBuyerNegotiationArgument(ctx context.Context, productTitle, productCondition, category string, productPrice, currentBuyerPrice, currentSellerPrice, manufacturingYear, round int) (*NegotiationArgument, error) {
+	if c == nil || c.geminiClient == nil {
+		return nil, fmt.Errorf("Gemini client not available")
+	}
+
+	prompt := fmt.Sprintf(`あなたは中古品フリーマーケットの購入者側のAI交渉エージェントです。
+出品者と価格交渉をしています。
+
+商品情報:
+- 商品名: %s
+- カテゴリー: %s
+- 状態: %s
+- 出品価格: ¥%d
+- 製造年: %d年
+
+交渉状況:
+- 交渉ラウンド: %d/5
+- あなたの現在の提示価格: ¥%d
+- 出品者の現在の提示価格: ¥%d
+- 価格差: ¥%d
+
+【最重要指示】
+必ず以下の手順で回答してください:
+1. まず、Google検索で「%s %s 中古 メルカリ」「%s %s 中古 ヤフオク」「%s %s 中古 Amazon」「%s %s 中古 楽天」を検索
+2. 検索結果から実際の販売価格を3つ以上収集
+3. 収集した価格データを交渉メッセージ内で必ず引用する
+
+交渉メッセージの作成ルール:
+- **必ず「メルカリでは¥XX,XXX」「ヤフオクでは¥XX,XXX」のように具体的な価格を明記**
+- 検索で見つけた実際の商品価格を根拠として使用
+- 「市場価格を考慮すると」などの抽象的な表現は禁止
+- 商品の状態や製造年を考慮した値下げ根拠を示す
+- 交渉ラウンドが進むにつれて徐々に譲歩
+- 価格差の30-40%%程度上げる（出品者価格を超えない）
+
+以下のJSON形式で返してください（前置きなし、JSONのみ）:
+{
+  "message": "交渉メッセージ（2-3文、「メルカリでは¥XX,XXX、ヤフオクでは¥XX,XXX」のように必ず具体的な市場価格を引用する）",
+  "proposed_price": 提案価格（整数）
+}
+
+悪い例: "同様の商品の市場平均価格を考慮すると、この価格帯が妥当です。"
+良い例: "メルカリでは同様の商品が¥15,000-16,500で販売されており、ヤフオクでは¥14,800前後です。この市場価格を考慮し¥15,900を提案します。"`, productTitle, category, productCondition, productPrice, manufacturingYear, round, currentBuyerPrice, currentSellerPrice, currentSellerPrice-currentBuyerPrice, productTitle, category, productTitle, category, productTitle, category, productTitle, category)
+
+	// Use regular generation - Google Search uses too many API calls and hits rate limits
+	response, err := c.geminiClient.GenerateContent(ctx, prompt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate buyer argument: %w", err)
+	}
+
+	// Parse JSON response
+	var result struct {
+		Message       string `json:"message"`
+		ProposedPrice int    `json:"proposed_price"`
+	}
+
+	// Try to extract JSON from response
+	if err := json.Unmarshal([]byte(response), &result); err != nil {
+		// If response contains markdown code blocks, extract JSON
+		start := -1
+		end := -1
+		for i := 0; i < len(response); i++ {
+			if response[i] == '{' && start == -1 {
+				start = i
+			}
+			if response[i] == '}' {
+				end = i
+			}
+		}
+		if start != -1 && end != -1 {
+			jsonStr := response[start : end+1]
+			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+				return nil, fmt.Errorf("failed to parse AI response: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		}
+	}
+
+	// Validate proposed price
+	if result.ProposedPrice < currentBuyerPrice {
+		result.ProposedPrice = currentBuyerPrice
+	}
+	if result.ProposedPrice > currentSellerPrice {
+		result.ProposedPrice = currentSellerPrice
+	}
+
+	return &NegotiationArgument{
+		Message:       result.Message,
+		ProposedPrice: result.ProposedPrice,
+	}, nil
+}
+
+// GenerateSellerNegotiationArgument generates a seller's negotiation argument using Gemini
+func (c *AIClient) GenerateSellerNegotiationArgument(ctx context.Context, productTitle, productCondition, category string, productPrice, currentBuyerPrice, currentSellerPrice, manufacturingYear, round int) (*NegotiationArgument, error) {
+	if c == nil || c.geminiClient == nil {
+		return nil, fmt.Errorf("Gemini client not available")
+	}
+
+	minPrice := int(float64(productPrice) * 0.85)
+
+	prompt := fmt.Sprintf(`あなたは中古品フリーマーケットの出品者側のAI交渉エージェントです。
+購入希望者と価格交渉をしています。
+
+商品情報:
+- 商品名: %s
+- カテゴリー: %s
+- 状態: %s
+- 出品価格: ¥%d
+- 製造年: %d年
+- 最低許容価格: ¥%d（出品価格の85%%）
+
+交渉状況:
+- 交渉ラウンド: %d/5
+- 購入者の現在の提示価格: ¥%d
+- あなたの現在の提示価格: ¥%d
+- 価格差: ¥%d
+
+【最重要指示】
+必ず以下の手順で回答してください:
+1. まず、Google検索で「%s %s 中古 メルカリ」「%s %s 中古 ヤフオク」「%s %s 中古 Amazon」「%s %s 中古 楽天」を検索
+2. 検索結果から実際の販売価格を3つ以上収集
+3. 収集した価格データを交渉メッセージ内で必ず引用する
+
+交渉メッセージの作成ルール:
+- **必ず「メルカリでは¥XX,XXX」「ヤフオクでは¥XX,XXX」のように具体的な価格を明記**
+- 検索で見つけた実際の商品価格を根拠として使用
+- 「この商品は良好な状態」などの抽象的な表現は禁止
+- 商品の価値（状態、希少性、人気）と市場価格を結びつける
+- 交渉ラウンドが進むにつれて徐々に譲歩
+- 価格差の25-35%%程度下げる（最低許容価格¥%dを下回らない）
+
+以下のJSON形式で返してください（前置きなし、JSONのみ）:
+{
+  "message": "交渉メッセージ（2-3文、「メルカリでは¥XX,XXX、Amazon中古では¥XX,XXX」のように必ず具体的な市場価格を引用する）",
+  "proposed_price": 提案価格（整数）
+}
+
+悪い例: "この商品は良好な状態を保っており、十分な価値があります。"
+良い例: "メルカリでは同程度の商品が¥18,000-19,500、Amazon中古では¥17,800前後で販売されています。この市場価格を踏まえ¥18,200を提案します。"`, productTitle, category, productCondition, productPrice, manufacturingYear, minPrice, round, currentBuyerPrice, currentSellerPrice, currentSellerPrice-currentBuyerPrice, productTitle, category, productTitle, category, productTitle, category, productTitle, category, minPrice)
+
+	// Use regular generation - Google Search uses too many API calls and hits rate limits
+	response, err := c.geminiClient.GenerateContent(ctx, prompt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate seller argument: %w", err)
+	}
+
+	// Parse JSON response
+	var result struct {
+		Message       string `json:"message"`
+		ProposedPrice int    `json:"proposed_price"`
+	}
+
+	// Try to extract JSON from response
+	if err := json.Unmarshal([]byte(response), &result); err != nil {
+		// If response contains markdown code blocks, extract JSON
+		start := -1
+		end := -1
+		for i := 0; i < len(response); i++ {
+			if response[i] == '{' && start == -1 {
+				start = i
+			}
+			if response[i] == '}' {
+				end = i
+			}
+		}
+		if start != -1 && end != -1 {
+			jsonStr := response[start : end+1]
+			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+				return nil, fmt.Errorf("failed to parse AI response: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		}
+	}
+
+	// Validate proposed price
+	if result.ProposedPrice < minPrice {
+		result.ProposedPrice = minPrice
+	}
+	if result.ProposedPrice > currentSellerPrice {
+		result.ProposedPrice = currentSellerPrice
+	}
+
+	return &NegotiationArgument{
+		Message:       result.Message,
+		ProposedPrice: result.ProposedPrice,
+	}, nil
+}
+
+// GenerateBuyerNegotiationArgumentWithPrompt generates buyer negotiation argument with custom user prompt
+func (c *AIClient) GenerateBuyerNegotiationArgumentWithPrompt(
+	ctx context.Context,
+	productTitle string,
+	productCondition string,
+	category string,
+	productPrice int,
+	currentBuyerPrice int,
+	currentSellerPrice int,
+	manufacturingYear int,
+	round int,
+	customPrompt string,
+) (*NegotiationArgument, error) {
+	if c.geminiClient == nil {
+		return nil, fmt.Errorf("Gemini client not initialized")
+	}
+
+	maxBuyerPrice := int(float64(productPrice) * 0.95)
+
+	prompt := fmt.Sprintf(`あなたは中古品フリーマーケットの購入者側のAI交渉エージェントです。
+出品者と価格交渉をしています。
+
+【ユーザーからのカスタム指示】
+%s
+
+商品情報:
+- 商品名: %s
+- カテゴリー: %s
+- 状態: %s
+- 出品価格: ¥%d
+- 製造年: %d年
+
+交渉状況:
+- 交渉ラウンド: %d/5
+- あなたの現在の提示価格: ¥%d (上限: ¥%d)
+- 出品者の現在の提示価格: ¥%d
+- 価格差: ¥%d
+
+【重要指示】
+1. ユーザーのカスタム指示を最優先で考慮してください
+2. 可能な限り「メルカリでは¥XX,XXX」「ヤフオクでは¥XX,XXX」のように具体的な価格を明記
+3. 市場価格を考慮した交渉メッセージを作成
+4. ラウンドが進むごとに譲歩し、価格差を縮める
+
+必ず以下のJSON形式で返してください（前置きなしで、JSONのみを返してください）：
+{
+  "message": "交渉メッセージ（ユーザーの指示と市場価格を考慮）",
+  "proposed_price": 提案価格（整数、¥%d以下）
+}
+
+ユーザーの指示: "%s"を踏まえた上で、説得力のある交渉メッセージを作成してください。`,
+		customPrompt, productTitle, category, productCondition, productPrice, manufacturingYear, round, currentBuyerPrice, maxBuyerPrice, currentSellerPrice, currentSellerPrice-currentBuyerPrice, maxBuyerPrice, customPrompt)
+
+	response, err := c.geminiClient.GenerateContent(ctx, prompt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate buyer argument: %w", err)
+	}
+
+	// Parse JSON response
+	var result struct {
+		Message       string `json:"message"`
+		ProposedPrice int    `json:"proposed_price"`
+	}
+
+	// Try to extract JSON from response
+	if err := json.Unmarshal([]byte(response), &result); err != nil {
+		// If response contains markdown code blocks, extract JSON
+		start := -1
+		end := -1
+		for i := 0; i < len(response); i++ {
+			if response[i] == '{' && start == -1 {
+				start = i
+			}
+			if response[i] == '}' {
+				end = i
+			}
+		}
+		if start != -1 && end != -1 {
+			jsonStr := response[start : end+1]
+			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+				return nil, fmt.Errorf("failed to parse AI response: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		}
+	}
+
+	// Validate proposed price
+	if result.ProposedPrice < currentBuyerPrice {
+		result.ProposedPrice = currentBuyerPrice
+	}
+	if result.ProposedPrice > maxBuyerPrice {
+		result.ProposedPrice = maxBuyerPrice
+	}
+
+	return &NegotiationArgument{
+		Message:       result.Message,
+		ProposedPrice: result.ProposedPrice,
+	}, nil
+}
+
+// GenerateSellerNegotiationArgumentWithPrompt generates seller negotiation argument with custom user prompt
+func (c *AIClient) GenerateSellerNegotiationArgumentWithPrompt(
+	ctx context.Context,
+	productTitle string,
+	productCondition string,
+	category string,
+	productPrice int,
+	currentBuyerPrice int,
+	currentSellerPrice int,
+	manufacturingYear int,
+	round int,
+	customPrompt string,
+) (*NegotiationArgument, error) {
+	if c.geminiClient == nil {
+		return nil, fmt.Errorf("Gemini client not initialized")
+	}
+
+	minPrice := int(float64(productPrice) * 0.85)
+
+	prompt := fmt.Sprintf(`あなたは中古品フリーマーケットの出品者側のAI交渉エージェントです。
+購入者と価格交渉をしています。
+
+【ユーザーからのカスタム指示】
+%s
+
+商品情報:
+- 商品名: %s
+- カテゴリー: %s
+- 状態: %s
+- 出品価格: ¥%d
+- 製造年: %d年
+- 最低販売価格: ¥%d（これ以下では販売不可）
+
+交渉状況:
+- 交渉ラウンド: %d/5
+- 購入者の現在の提示価格: ¥%d
+- あなたの現在の提示価格: ¥%d
+- 価格差: ¥%d
+
+【重要指示】
+1. ユーザーのカスタム指示を最優先で考慮してください
+2. 可能な限り「メルカリでは¥XX,XXX」「ヤフオクでは¥XX,XXX」のように具体的な価格を明記
+3. 市場価格を考慮した交渉メッセージを作成
+4. ラウンドが進むごとに譲歩し、価格差を縮める
+5. 最低価格¥%dを下回らないこと
+
+必ず以下のJSON形式で返してください（前置きなしで、JSONのみを返してください）：
+{
+  "message": "交渉メッセージ（ユーザーの指示と市場価格を考慮）",
+  "proposed_price": 提案価格（整数、¥%d以上）
+}
+
+ユーザーの指示: "%s"を踏まえた上で、説得力のある交渉メッセージを作成してください。`,
+		customPrompt, productTitle, category, productCondition, productPrice, manufacturingYear, minPrice, round, currentBuyerPrice, currentSellerPrice, currentSellerPrice-currentBuyerPrice, minPrice, minPrice, customPrompt)
+
+	response, err := c.geminiClient.GenerateContent(ctx, prompt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate seller argument: %w", err)
+	}
+
+	// Parse JSON response
+	var result struct {
+		Message       string `json:"message"`
+		ProposedPrice int    `json:"proposed_price"`
+	}
+
+	// Try to extract JSON from response
+	if err := json.Unmarshal([]byte(response), &result); err != nil {
+		// If response contains markdown code blocks, extract JSON
+		start := -1
+		end := -1
+		for i := 0; i < len(response); i++ {
+			if response[i] == '{' && start == -1 {
+				start = i
+			}
+			if response[i] == '}' {
+				end = i
+			}
+		}
+		if start != -1 && end != -1 {
+			jsonStr := response[start : end+1]
+			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+				return nil, fmt.Errorf("failed to parse AI response: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		}
+	}
+
+	// Validate proposed price
+	if result.ProposedPrice < minPrice {
+		result.ProposedPrice = minPrice
+	}
+	if result.ProposedPrice > currentSellerPrice {
+		result.ProposedPrice = currentSellerPrice
+	}
+
+	return &NegotiationArgument{
+		Message:       result.Message,
+		ProposedPrice: result.ProposedPrice,
+	}, nil
 }

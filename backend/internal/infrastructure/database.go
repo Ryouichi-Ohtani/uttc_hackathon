@@ -32,71 +32,32 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.Conversation{},
 		&domain.ConversationParticipant{},
 		&domain.Message{},
-		&domain.Achievement{},
-		&domain.UserAchievement{},
-		&domain.SustainabilityLog{},
 		&domain.Favorite{},
 		&domain.Notification{},
 		&domain.Review{},
 		&domain.Offer{},
+		&domain.NegotiationLog{},
 		&domain.UserEvent{},
 		&domain.Auction{},
 		&domain.Bid{},
-		&domain.BlockchainTransaction{},
-		&domain.NFTOwnership{},
 		&domain.ChatHistory{},
-		&domain.CO2Goal{},
 		&domain.ShippingTracking{},
 		&domain.Follow{},
 		&domain.ProductShare{},
 		&domain.UserFeed{},
 		&domain.LiveStream{},
 		&domain.StreamComment{},
+		// AI Agent Models
+		&domain.AIListingData{},
+		&domain.AINegotiationSettings{},
+		&domain.AIShippingPreparation{},
+		&domain.AIAgentLog{},
 	)
 }
 
 func SeedAchievements(db *gorm.DB) error {
-	achievements := []domain.Achievement{
-		{
-			Name:             "First Step",
-			Description:      "Complete your first transaction",
-			RequirementType:  "transaction_count",
-			RequirementValue: 1,
-		},
-		{
-			Name:             "Eco Warrior",
-			Description:      "Save 10kg of CO2",
-			RequirementType:  "co2_saved",
-			RequirementValue: 10,
-		},
-		{
-			Name:             "Planet Hero",
-			Description:      "Save 50kg of CO2",
-			RequirementType:  "co2_saved",
-			RequirementValue: 50,
-		},
-		{
-			Name:             "Climate Champion",
-			Description:      "Save 100kg of CO2",
-			RequirementType:  "co2_saved",
-			RequirementValue: 100,
-		},
-		{
-			Name:             "Master Trader",
-			Description:      "Complete 50 transactions",
-			RequirementType:  "transaction_count",
-			RequirementValue: 50,
-		},
-	}
-
-	for _, achievement := range achievements {
-		var existing domain.Achievement
-		if err := db.Where("name = ?", achievement.Name).First(&existing).Error; err == gorm.ErrRecordNotFound {
-			if err := db.Create(&achievement).Error; err != nil {
-				return err
-			}
-		}
-	}
+	// Removed sustainability achievements - focus on AI agent usage
+	log.Println("Achievements seeding removed - AI Agent focused app")
 
 	log.Println("Achievements seeded successfully")
 	return nil

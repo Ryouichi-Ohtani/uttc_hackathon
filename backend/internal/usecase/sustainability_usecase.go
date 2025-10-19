@@ -27,7 +27,7 @@ func NewSustainabilityUseCase(
 }
 
 func (u *sustainabilityUseCase) GetDashboard(userID uuid.UUID) (*domain.DashboardResponse, error) {
-	user, err := u.userRepo.FindByID(userID)
+	_, err := u.userRepo.FindByID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -47,24 +47,18 @@ func (u *sustainabilityUseCase) GetDashboard(userID uuid.UUID) (*domain.Dashboar
 		return nil, err
 	}
 
-	// Calculate next level threshold (exponential)
-	nextLevelThreshold := user.Level * 100
-
-	// Calculate comparisons
-	equivalentTrees := user.TotalCO2SavedKg / 20  // 1 tree absorbs ~20kg CO2/year
-	carKmAvoided := user.TotalCO2SavedKg / 0.12   // Car emits ~0.12kg CO2/km
-
+	// CO2 tracking removed - return minimal dashboard
 	dashboard := &domain.DashboardResponse{
-		TotalCO2SavedKg:     user.TotalCO2SavedKg,
-		Level:               user.Level,
-		SustainabilityScore: user.SustainabilityScore,
-		NextLevelThreshold:  nextLevelThreshold,
+		TotalCO2SavedKg:     0,
+		Level:               0,
+		SustainabilityScore: 0,
+		NextLevelThreshold:  0,
 		Achievements:        achievements,
 		RecentLogs:          logs,
 		MonthlyStats:        monthlyStats,
 		Comparisons: &domain.EnvironmentComparison{
-			EquivalentTrees: equivalentTrees,
-			CarKmAvoided:    carKmAvoided,
+			EquivalentTrees: 0,
+			CarKmAvoided:    0,
 		},
 	}
 

@@ -16,18 +16,30 @@ const (
 )
 
 type Offer struct {
-	ID            uuid.UUID   `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID     uuid.UUID   `json:"product_id" gorm:"type:uuid;not null;index"`
-	Product       *Product    `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	BuyerID       uuid.UUID   `json:"buyer_id" gorm:"type:uuid;not null;index"`
-	Buyer         *User       `json:"buyer,omitempty" gorm:"foreignKey:BuyerID"`
-	OfferPrice    int         `json:"offer_price" gorm:"not null"`
-	Message       string      `json:"message"`
-	Status        OfferStatus `json:"status" gorm:"default:pending"`
-	ResponseMessage string    `json:"response_message"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
-	RespondedAt   *time.Time  `json:"responded_at"`
+	ID                 uuid.UUID          `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ProductID          uuid.UUID          `json:"product_id" gorm:"type:uuid;not null;index"`
+	Product            *Product           `json:"product,omitempty" gorm:"foreignKey:ProductID"`
+	BuyerID            uuid.UUID          `json:"buyer_id" gorm:"type:uuid;not null;index"`
+	Buyer              *User              `json:"buyer,omitempty" gorm:"foreignKey:BuyerID"`
+	OfferPrice         int                `json:"offer_price" gorm:"not null"`
+	Message            string             `json:"message"`
+	Status             OfferStatus        `json:"status" gorm:"default:pending"`
+	ResponseMessage    string             `json:"response_message"`
+	AINegotiationLogs  []NegotiationLog   `json:"ai_negotiation_logs,omitempty" gorm:"foreignKey:OfferID"`
+	FinalAIPrice       *int               `json:"final_ai_price"`
+	CreatedAt          time.Time          `json:"created_at"`
+	UpdatedAt          time.Time          `json:"updated_at"`
+	RespondedAt        *time.Time         `json:"responded_at"`
+}
+
+// NegotiationLog represents a single message in AI-to-AI negotiation
+type NegotiationLog struct {
+	ID        uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	OfferID   uuid.UUID `json:"offer_id" gorm:"type:uuid;not null;index"`
+	Role      string    `json:"role" gorm:"not null"` // "buyer_ai" or "seller_ai"
+	Message   string    `json:"message" gorm:"type:text;not null"`
+	Price     *int      `json:"price"` // Proposed price in this message
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type OfferRepository interface {
@@ -37,6 +49,8 @@ type OfferRepository interface {
 	FindByBuyerID(buyerID uuid.UUID) ([]*Offer, error)
 	FindBySellerID(sellerID uuid.UUID) ([]*Offer, error)
 	Update(offer *Offer) error
+	CreateNegotiationLog(log *NegotiationLog) error
+	ClearNegotiationLogs(offerID uuid.UUID) error
 }
 
 type CreateOfferRequest struct {
@@ -46,6 +60,6 @@ type CreateOfferRequest struct {
 }
 
 type RespondOfferRequest struct {
-	Accept  bool   `json:"accept" binding:"required"`
+	Accept  *bool  `json:"accept" binding:"required"`
 	Message string `json:"message"`
 }

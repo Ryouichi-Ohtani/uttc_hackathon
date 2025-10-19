@@ -29,6 +29,20 @@ func NewGeminiClient() *GeminiClient {
 
 type GeminiRequest struct {
 	Contents []GeminiContent `json:"contents"`
+	Tools    []GeminiTool    `json:"tools,omitempty"`
+}
+
+type GeminiTool struct {
+	GoogleSearchRetrieval *GoogleSearchRetrieval `json:"googleSearchRetrieval,omitempty"`
+}
+
+type GoogleSearchRetrieval struct {
+	DynamicRetrievalConfig *DynamicRetrievalConfig `json:"dynamicRetrievalConfig,omitempty"`
+}
+
+type DynamicRetrievalConfig struct {
+	Mode             string  `json:"mode"`
+	DynamicThreshold float64 `json:"dynamicThreshold"`
 }
 
 type GeminiContent struct {
@@ -54,11 +68,20 @@ type GeminiCandidate struct {
 }
 
 func (c *GeminiClient) GenerateContent(ctx context.Context, prompt string) (string, error) {
+	return c.generateContentWithSearch(ctx, prompt, false)
+}
+
+// GenerateContentWithSearch generates content with optional Google Search grounding
+func (c *GeminiClient) GenerateContentWithSearch(ctx context.Context, prompt string) (string, error) {
+	return c.generateContentWithSearch(ctx, prompt, true)
+}
+
+func (c *GeminiClient) generateContentWithSearch(ctx context.Context, prompt string, enableSearch bool) (string, error) {
 	if c == nil {
 		return "", fmt.Errorf("Gemini client not initialized")
 	}
 
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=%s", c.apiKey)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=%s", c.apiKey)
 
 	reqBody := GeminiRequest{
 		Contents: []GeminiContent{
@@ -68,6 +91,20 @@ func (c *GeminiClient) GenerateContent(ctx context.Context, prompt string) (stri
 				},
 			},
 		},
+	}
+
+	// Add Google Search grounding if enabled
+	if enableSearch {
+		reqBody.Tools = []GeminiTool{
+			{
+				GoogleSearchRetrieval: &GoogleSearchRetrieval{
+					DynamicRetrievalConfig: &DynamicRetrievalConfig{
+						Mode:             "MODE_DYNAMIC",
+						DynamicThreshold: 0.7,
+					},
+				},
+			},
+		}
 	}
 
 	jsonData, err := json.Marshal(reqBody)
@@ -115,20 +152,25 @@ func (c *GeminiClient) AnalyzeProductImage(ctx context.Context, imageData string
 		return "", fmt.Errorf("Gemini client not initialized")
 	}
 
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=%s", c.apiKey)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=%s", c.apiKey)
 
-	prompt := `この商品画像を分析して、以下のJSON形式で情報を返してください：
+	prompt := `この商品画像を分析して、以下のJSON形式で情報を返してください。前置きなしで、JSONのみを返してください：
 
 {
   "title": "商品名（日本語、簡潔に）",
   "description": "商品の詳細な説明（日本語、200文字程度）",
   "category": "カテゴリー（clothing/electronics/furniture/books/toys/sports のいずれか）",
   "condition": "推定状態（new/like_new/good/fair のいずれか）",
-  "tags": ["タグ1", "タグ2", "タグ3"],
-  "estimated_price": 推定価格（円）
+  "price": 推定価格（円、整数）,
+  "weight_kg": 推定重量（kg、小数）,
+  "brand": "ブランド名（あれば）",
+  "model": "モデル名（あれば）",
+  "features": ["特徴1", "特徴2", "特徴3"],
+  "pricing_rationale": "価格設定の根拠",
+  "category_rationale": "カテゴリ選定の根拠"
 }
 
-商品の特徴、ブランド、状態などを詳しく記述してください。`
+商品の特徴、ブランド、状態などを詳しく記述してください。JSONのみを返し、前置きや説明文は不要です。`
 
 	reqBody := GeminiRequest{
 		Contents: []GeminiContent{

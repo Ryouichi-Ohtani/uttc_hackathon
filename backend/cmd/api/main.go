@@ -56,6 +56,7 @@ func main() {
 	chatHistoryRepo := infrastructure.NewChatHistoryRepository(db)
 	co2GoalRepo := infrastructure.NewCO2GoalRepository(db)
 	shippingRepo := infrastructure.NewShippingTrackingRepository(db)
+	aiAgentRepo := infrastructure.NewAIAgentRepository(db)
 
 	// Add database indexes for performance
 	if err := infrastructure.AddIndexes(db); err != nil {
@@ -91,6 +92,13 @@ func main() {
 	co2GoalUseCase := usecase.NewCO2GoalUseCase(co2GoalRepo)
 	shippingUseCase := usecase.NewShippingTrackingUseCase(shippingRepo)
 
+	// Initialize Gemini client
+	geminiClient := infrastructure.NewGeminiClient()
+	aiAgentUseCase := usecase.NewAIAgentUseCase(aiAgentRepo, productRepo, offerRepo, purchaseRepo, geminiClient)
+
+	// Connect AI Agent to Offer UseCase (for automatic negotiation)
+	offerUseCase.SetAIAgentUseCase(aiAgentUseCase)
+
 	// Initialize handlers
 	authHandler := interfaces.NewAuthHandler(authUseCase)
 	productHandler := interfaces.NewProductHandler(productUseCase, authUseCase, sustainabilityRepo)
@@ -113,6 +121,7 @@ func main() {
 	chatHistoryHandler := interfaces.NewChatHistoryHandler(chatHistoryUseCase)
 	co2GoalHandler := interfaces.NewCO2GoalHandler(co2GoalUseCase)
 	shippingHandler := interfaces.NewShippingHandler(shippingUseCase)
+	aiAgentHandler := interfaces.NewAIAgentHandler(aiAgentUseCase)
 
 	// Setup Gin
 	gin.SetMode(cfg.Server.GinMode)
@@ -224,6 +233,8 @@ func main() {
 			offers.GET("/my", offerHandler.GetMyOffers)
 			offers.GET("/products/:id", offerHandler.GetProductOffers)
 			offers.GET("/products/:id/ai-suggestion", offerHandler.GetNegotiationSuggestion)
+			offers.POST("/:id/ai-negotiate", offerHandler.StartAINegotiation)
+			offers.POST("/:id/ai-renegotiate", offerHandler.RetryAINegotiationWithPrompt)
 			offers.PATCH("/:id/respond", offerHandler.RespondOffer)
 		}
 
@@ -291,6 +302,9 @@ func main() {
 		{
 			ai.POST("/translate-search", aiHandler.TranslateSearch)
 		}
+
+		// AI Agent routes (New!)
+		aiAgentHandler.RegisterRoutes(v1, interfaces.AuthMiddleware(authUseCase))
 
 		// Chat history routes
 		chatHistory := v1.Group("/chat-history")

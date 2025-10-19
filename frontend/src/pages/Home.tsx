@@ -57,7 +57,7 @@ export const Home = () => {
 
     try {
       setIsTranslating(true)
-      setTranslationInfo('🔄 Translating your search...')
+      setTranslationInfo('Translating your search...')
 
       // Get multilingual translation
       const translation = await aiService.translateSearch(searchTerm)
@@ -75,7 +75,7 @@ export const Home = () => {
       const langName = translation.detected_language === 'ja' ? '日本語' :
                       translation.detected_language === 'en' ? 'English' :
                       translation.detected_language
-      setTranslationInfo(`🌐 Detected: ${langName} | Searching: ${translation.search_intent}`)
+      setTranslationInfo(`Detected: ${langName} | Searching: ${translation.search_intent}`)
 
       // Search with expanded query
       setFilters({ ...filters, search: multilingualQuery, page: 1 })
@@ -83,7 +83,7 @@ export const Home = () => {
       console.error('Translation error:', error)
       // Fallback to original search
       setFilters({ ...filters, search: searchTerm, page: 1 })
-      setTranslationInfo('⚠️ Translation unavailable, searching with original query')
+      setTranslationInfo('Translation unavailable, searching with original query')
     } finally {
       setIsTranslating(false)
     }
@@ -108,9 +108,9 @@ export const Home = () => {
               onChange={(e) => setLanguage(e.target.value as any)}
               className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
             >
-              <option value="ja">🇯🇵 日本語</option>
-              <option value="en">🇺🇸 English</option>
-              <option value="zh">🇨🇳 中文</option>
+              <option value="ja">日本語</option>
+              <option value="en">English</option>
+              <option value="zh">中文</option>
             </select>
           </div>
 
@@ -132,7 +132,7 @@ export const Home = () => {
                 }}
               />
               <Button type="submit" isLoading={isTranslating}>
-                🔍 {t('common.search')}
+                {t('common.search')}
               </Button>
             </div>
             {translationInfo && (
@@ -257,7 +257,6 @@ export const Home = () => {
               </div>
             ) : products.length === 0 ? (
               <Card className="text-center py-12">
-                <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   No products found
                 </h3>

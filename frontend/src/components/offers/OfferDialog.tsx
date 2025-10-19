@@ -21,7 +21,7 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
   const handleGetSuggestion = async () => {
     try {
       setLoadingSuggestion(true)
-      const response = await api.get(`/v1/offers/products/${productId}/ai-suggestion`)
+      const response = await api.get(`/offers/products/${productId}/ai-suggestion`)
       setAiSuggestion(response.data)
 
       if (response.data.suggested_price) {
@@ -52,9 +52,9 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
 
     setLoading(true)
     try {
-      await api.post('/v1/offers', {
+      await api.post('/offers', {
         product_id: productId,
-        offered_price: price,
+        offer_price: price,
         message: message || undefined,
       })
 
@@ -62,7 +62,9 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
       onSuccess()
       onClose()
     } catch (error: any) {
-      toast.error(error.response?.data?.error || '送信に失敗しました')
+      console.error('Offer submission error:', error)
+      const errorMessage = error.response?.data?.error?.message || error.response?.data?.error || '送信に失敗しました'
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -95,12 +97,11 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
             onClick={handleGetSuggestion}
             disabled={loadingSuggestion}
           >
-            {loadingSuggestion ? '🤖 AI分析中...' : '🤖 AI価格提案を受ける'}
+            {loadingSuggestion ? 'AI分析中...' : 'AI価格提案を受ける'}
           </Button>
         ) : (
           <div className="mb-4 p-4 bg-primary-50 rounded-lg border border-primary-200">
             <div className="flex items-start gap-2 mb-2">
-              <span className="text-2xl">🤖</span>
               <div className="flex-1">
                 <div className="font-semibold text-primary-900 mb-1">AI価格提案</div>
                 <div className="text-xl font-bold text-primary-600 mb-2">
@@ -169,7 +170,7 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
         </form>
 
         <div className="mt-4 p-3 bg-blue-50 rounded text-sm text-gray-700">
-          💡 ヒント: 出品者が承認すると、新しい価格で購入できます
+          ヒント: 出品者が承認すると、新しい価格で購入できます
         </div>
       </div>
     </div>

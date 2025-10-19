@@ -4,6 +4,8 @@ import { purchaseService, Purchase } from '@/services/purchases'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
 import { Header } from '@/components/layout/Header'
+import AIShippingPreparation from '@/components/ai-agent/AIShippingPreparation'
+import { ShippingTracker } from '@/components/shipping/ShippingTracker'
 import toast from 'react-hot-toast'
 
 export const Purchases = () => {
@@ -84,7 +86,6 @@ export const Purchases = () => {
           </div>
         ) : purchases.length === 0 ? (
           <Card className="text-center py-12">
-            <div className="text-6xl mb-4">📦</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No purchases yet</h3>
             <p className="text-gray-600">Start shopping to see your purchases here</p>
             <Button className="mt-4" onClick={() => navigate('/')}>
@@ -94,43 +95,55 @@ export const Purchases = () => {
         ) : (
           <div className="space-y-4">
             {purchases.map((purchase) => (
-              <Card key={purchase.id}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">
-                        {purchase.product?.title || 'Product'}
-                      </h3>
-                      {getStatusBadge(purchase.status)}
+              <div key={purchase.id} className="space-y-3">
+                <Card>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold">
+                          {purchase.product?.title || 'Product'}
+                        </h3>
+                        {getStatusBadge(purchase.status)}
+                      </div>
+                      <p className="text-gray-600 mb-2">
+                        Price: ¥{purchase.price.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Payment: {purchase.payment_method}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Shipping: {purchase.shipping_address}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        {new Date(purchase.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="text-gray-600 mb-2">
-                      Price: ¥{purchase.price.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      CO2 Saved: {purchase.co2_saved_kg.toFixed(2)}kg
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Payment: {purchase.payment_method}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Shipping: {purchase.shipping_address}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      {new Date(purchase.created_at).toLocaleDateString()}
-                    </p>
+                    <div className="ml-4">
+                      {purchase.status === 'pending' && filter === 'seller' && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleComplete(purchase.id)}
+                        >
+                          Complete
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="ml-4">
-                    {purchase.status === 'pending' && filter === 'seller' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleComplete(purchase.id)}
-                      >
-                        Complete
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card>
+                </Card>
+
+                {/* AI Shipping Agent - 出品者側のみ表示 */}
+                {filter === 'seller' && purchase.status !== 'cancelled' && (
+                  <AIShippingPreparation
+                    purchaseId={purchase.id}
+                    onApprove={loadPurchases}
+                  />
+                )}
+
+                {/* Shipping Tracker - 購入者側のみ表示 */}
+                {filter === 'buyer' && purchase.status !== 'cancelled' && (
+                  <ShippingTracker purchaseId={purchase.id} />
+                )}
+              </div>
             ))}
           </div>
         )}

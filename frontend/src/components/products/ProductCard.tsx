@@ -7,7 +7,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  const primaryImage = product.images.find((img) => img.is_primary) || product.images[0]
+  const primaryImage = product.images?.find((img) => img.is_primary) || product.images?.[0]
   const getImageUrl = () => {
     if (primaryImage?.cdn_url && primaryImage.cdn_url.trim() !== '') {
       return primaryImage.cdn_url
@@ -15,7 +15,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     if (primaryImage?.image_url && primaryImage.image_url.trim() !== '') {
       return primaryImage.image_url
     }
-    return 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=EcoMate'
+    return 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate'
   }
   const imageUrl = getImageUrl()
 
@@ -29,7 +29,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             className="w-full h-48 object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement
-              target.src = 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=EcoMate'
+              target.src = 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate'
             }}
           />
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
@@ -53,13 +53,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             )}
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-primary-600 bg-primary-50 rounded-lg p-2">
-            <span className="text-lg">🌱</span>
-            <span className="font-medium">
-              {product.co2_impact_kg.toFixed(1)}kg CO2 saved
-            </span>
-          </div>
-
           <div className="flex items-center justify-between mt-3 text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <span>♡</span>
@@ -76,13 +69,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
           {product.seller && (
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-xs">
-                {product.seller.username[0].toUpperCase()}
-              </div>
+              {product.seller.avatar_url ? (
+                <img src={product.seller.avatar_url} alt={product.seller.username} className="w-6 h-6 rounded-full" />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-xs">
+                  {product.seller.username[0].toUpperCase()}
+                </div>
+              )}
               <span className="text-sm text-gray-600">{product.seller.username}</span>
-              <span className="text-xs text-primary-600">
-                Lv.{product.seller.level}
-              </span>
             </div>
           )}
         </div>

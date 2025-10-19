@@ -15,7 +15,7 @@ export const NotificationBadge = () => {
 
   const loadUnreadCount = async () => {
     try {
-      const response = await api.get('/v1/notifications/unread-count')
+      const response = await api.get('/notifications/unread-count')
       setUnreadCount(response.data.count || 0)
     } catch (error) {
       // Silent fail

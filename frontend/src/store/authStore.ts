@@ -77,8 +77,20 @@ export const useAuthStore = create<AuthState>()(
             toast.success('Login successful!')
           } catch (error: any) {
             console.error('AuthStore: Login failed:', error)
+            console.error('Error response:', error.response)
             set({ loading: false })
-            toast.error(error.response?.data?.error?.message || 'Login failed')
+
+            // Improved error message handling
+            let errorMessage = 'Invalid email or password'
+            if (error.response?.data?.error?.message) {
+              errorMessage = error.response.data.error.message
+            } else if (error.response?.data?.message) {
+              errorMessage = error.response.data.message
+            } else if (error.message) {
+              errorMessage = error.message
+            }
+
+            toast.error(errorMessage)
             throw error
           }
         },
@@ -101,8 +113,20 @@ export const useAuthStore = create<AuthState>()(
             toast.success('Registration successful!')
           } catch (error: any) {
             console.error('AuthStore: Registration failed:', error)
+            console.error('Error response:', error.response)
             set({ loading: false })
-            toast.error(error.response?.data?.error?.message || 'Registration failed')
+
+            // Improved error message handling
+            let errorMessage = 'Registration failed. Please try again.'
+            if (error.response?.data?.error?.message) {
+              errorMessage = error.response.data.error.message
+            } else if (error.response?.data?.message) {
+              errorMessage = error.response.data.message
+            } else if (error.message) {
+              errorMessage = error.message
+            }
+
+            toast.error(errorMessage)
             throw error
           }
         },

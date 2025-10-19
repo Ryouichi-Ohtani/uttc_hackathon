@@ -131,7 +131,7 @@ export const VoiceSearch: React.FC<VoiceSearchProps> = ({
           }`}
           title={isListening ? '停止' : isProcessing ? 'Processing...' : '音声検索'}
         >
-          {isListening ? '⏹️ Listening...' : isProcessing ? '🔄 Processing...' : '🎤 Voice'}
+          {isListening ? 'Listening...' : isProcessing ? 'Processing...' : 'Voice'}
         </button>
       </div>
 
@@ -143,7 +143,7 @@ export const VoiceSearch: React.FC<VoiceSearchProps> = ({
 
       {detectedIntent && (
         <div className="text-sm p-2 bg-primary-50 rounded-lg text-primary-700">
-          <span className="font-medium">🎯 Intent:</span> {detectedIntent}
+          <span className="font-medium">Intent:</span> {detectedIntent}
         </div>
       )}
     </div>

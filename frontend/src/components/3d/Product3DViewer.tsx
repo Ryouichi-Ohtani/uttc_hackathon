@@ -74,7 +74,7 @@ export const Product3DViewer = ({ modelUrl, productTitle }: Product3DViewerProps
       {/* Controls overlay */}
       <div className="absolute bottom-4 left-4 right-4 bg-black/50 backdrop-blur-sm rounded-lg p-3">
         <div className="flex items-center justify-between text-white text-sm">
-          <span>🖱️ Drag to rotate • 🔍 Scroll to zoom</span>
+          <span>Drag to rotate - Scroll to zoom</span>
           <button className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors">
             Fullscreen
           </button>

@@ -23,7 +23,6 @@ type Purchase struct {
 	SellerID        uuid.UUID      `json:"seller_id" gorm:"type:uuid;not null;index"`
 	Seller          *User          `json:"seller,omitempty" gorm:"foreignKey:SellerID"`
 	Price           int            `json:"price" gorm:"not null"`
-	CO2SavedKg      float64        `json:"co2_saved_kg" gorm:"type:decimal(10,2);not null"`
 	Status          PurchaseStatus `json:"status" gorm:"default:pending"`
 	PaymentMethod   string         `json:"payment_method"`
 	ShippingAddress string         `json:"shipping_address"`

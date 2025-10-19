@@ -66,10 +66,10 @@ export const ShippingTracker = ({ purchaseId }: ShippingTrackerProps) => {
   }
 
   const statusSteps = [
-    { key: 'pending', label: '準備中', icon: '📦' },
-    { key: 'shipped', label: '発送済み', icon: '🚚' },
-    { key: 'in_transit', label: '配送中', icon: '🛣️' },
-    { key: 'delivered', label: '配達完了', icon: '✅' },
+    { key: 'pending', label: '準備中', icon: '○' },
+    { key: 'shipped', label: '発送済み', icon: '○' },
+    { key: 'in_transit', label: '配送中', icon: '○' },
+    { key: 'delivered', label: '配達完了', icon: '✓' },
   ]
 
   const currentStepIndex = statusSteps.findIndex((step) => step.key === tracking.status)
@@ -84,10 +84,10 @@ export const ShippingTracker = ({ purchaseId }: ShippingTrackerProps) => {
     <Card>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">📮 配送状況</h3>
+          <h3 className="font-semibold">配送状況</h3>
           {tracking.shipping_method === 'eco' && (
             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-              🌱 エコ配送 -{tracking.co2_saved.toFixed(2)}kg CO2
+              エコ配送 -{tracking.co2_saved.toFixed(2)}kg CO2
             </span>
           )}
         </div>

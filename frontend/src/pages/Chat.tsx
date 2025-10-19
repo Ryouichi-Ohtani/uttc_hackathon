@@ -16,6 +16,7 @@ export const Chat = () => {
   const [loading, setLoading] = useState(true)
   const [ws, setWs] = useState<WebSocket | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const wsRef = useRef<WebSocket | null>(null)
 
   useEffect(() => {
     if (id) {
@@ -24,11 +25,12 @@ export const Chat = () => {
     }
 
     return () => {
-      if (ws) {
-        ws.close()
+      if (wsRef.current) {
+        wsRef.current.close()
+        wsRef.current = null
       }
     }
-  }, [id])
+  }, [id, token])
 
   useEffect(() => {
     scrollToBottom()
@@ -42,9 +44,11 @@ export const Chat = () => {
     try {
       setLoading(true)
       const data = await messageService.getMessages(id!)
-      setMessages(data.messages.reverse())
-    } catch (error) {
-      toast.error('Failed to load messages')
+      setMessages(data.messages ? data.messages.reverse() : [])
+    } catch (error: any) {
+      console.error('Failed to load messages:', error)
+      toast.error(error.response?.data?.error || 'Failed to load messages')
+      setMessages([])
     } finally {
       setLoading(false)
     }
@@ -53,21 +57,39 @@ export const Chat = () => {
   const setupWebSocket = () => {
     if (!id || !token) return
 
+    // Close existing WebSocket if any
+    if (wsRef.current) {
+      wsRef.current.close()
+    }
+
     const websocket = messageService.createWebSocket(id, token)
 
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data)
 
       if (data.type === 'message' && data.data) {
-        setMessages((prev) => [...prev, data.data])
+        // Prevent duplicate messages by checking if message already exists
+        setMessages((prev) => {
+          const exists = prev.some((msg) => msg.id === data.data.id)
+          if (exists) {
+            return prev
+          }
+          return [...prev, data.data]
+        })
       }
     }
 
     websocket.onerror = (error) => {
       console.error('WebSocket error:', error)
-      toast.error('Real-time messaging connection failed')
+      // Don't show error toast - will fall back to HTTP
     }
 
+    websocket.onclose = (event) => {
+      console.log('WebSocket closed:', event.code, event.reason)
+      // Connection closed, will use HTTP fallback for sending messages
+    }
+
+    wsRef.current = websocket
     setWs(websocket)
   }
 
@@ -75,22 +97,25 @@ export const Chat = () => {
     e.preventDefault()
     if (!newMessage.trim() || !id) return
 
+    const messageContent = newMessage
+    setNewMessage('') // Clear input immediately for better UX
+
     try {
       // Send via WebSocket if available
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
           type: 'send_message',
-          content: newMessage,
+          content: messageContent,
         }))
+        // Message will be added via WebSocket onmessage handler
       } else {
         // Fallback to HTTP
-        const message = await messageService.sendMessage(id, newMessage)
+        const message = await messageService.sendMessage(id, messageContent)
         setMessages((prev) => [...prev, message])
       }
-
-      setNewMessage('')
     } catch (error) {
       toast.error('Failed to send message')
+      setNewMessage(messageContent) // Restore message on error
     }
   }
 
@@ -109,6 +134,12 @@ export const Chat = () => {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-4">
+          {messages.length === 0 && !loading && (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg mb-2">💬</p>
+              <p>No messages yet. Start the conversation!</p>
+            </div>
+          )}
           {messages.map((msg) => {
             const isOwnMessage = msg.sender_id === user?.id
 

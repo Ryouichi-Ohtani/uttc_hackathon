@@ -71,18 +71,11 @@ func (r *sustainabilityRepository) CheckAndAwardAchievements(userID uuid.UUID) e
 
 			shouldAward := false
 			switch achievement.RequirementType {
-			case "co2_saved":
-				if int(user.TotalCO2SavedKg) >= achievement.RequirementValue {
-					shouldAward = true
-				}
 			case "transaction_count":
 				if int(transactionCount) >= achievement.RequirementValue {
 					shouldAward = true
 				}
-			case "level":
-				if user.Level >= achievement.RequirementValue {
-					shouldAward = true
-				}
+			// Removed CO2 and level based achievements
 			}
 
 			if shouldAward {

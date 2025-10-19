@@ -56,7 +56,6 @@ func (u *purchaseUseCase) Create(userID uuid.UUID, req *domain.CreatePurchaseReq
 		BuyerID:         userID,
 		SellerID:        product.SellerID,
 		Price:           product.Price,
-		CO2SavedKg:      product.CO2ImpactKg,
 		Status:          domain.PurchaseStatusPending,
 		ShippingAddress: req.ShippingAddress,
 		PaymentMethod:   req.PaymentMethod,
@@ -103,13 +102,6 @@ func (u *purchaseUseCase) CompletePurchase(id uuid.UUID, userID uuid.UUID) error
 	// Update status
 	if err := u.purchaseRepo.UpdateStatus(id, domain.PurchaseStatusCompleted); err != nil {
 		return err
-	}
-
-	// Update buyer's CO2 saved
-	buyer, err := u.userRepo.FindByID(purchase.BuyerID)
-	if err == nil {
-		buyer.TotalCO2SavedKg += purchase.CO2SavedKg
-		_ = u.userRepo.Update(buyer)
 	}
 
 	now := time.Now()

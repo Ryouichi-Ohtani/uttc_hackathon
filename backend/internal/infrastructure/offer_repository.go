@@ -20,8 +20,10 @@ func (r *offerRepository) Create(offer *domain.Offer) error {
 
 func (r *offerRepository) FindByID(id uuid.UUID) (*domain.Offer, error) {
 	var offer domain.Offer
-	err := r.db.Preload("Product").Preload("Product.Seller").Preload("Buyer").
-		First(&offer, "id = ?", id).Error
+	err := r.db.Preload("Product").Preload("Product.Seller").Preload("Product.Images").
+		Preload("Buyer").Preload("AINegotiationLogs", func(db *gorm.DB) *gorm.DB {
+		return db.Order("created_at ASC")
+	}).First(&offer, "id = ?", id).Error
 	return &offer, err
 }
 
@@ -45,8 +47,10 @@ func (r *offerRepository) FindByBuyerID(buyerID uuid.UUID) ([]*domain.Offer, err
 
 func (r *offerRepository) FindBySellerID(sellerID uuid.UUID) ([]*domain.Offer, error) {
 	var offers []*domain.Offer
-	err := r.db.Preload("Product").Preload("Buyer").
-		Joins("JOIN products ON products.id = offers.product_id").
+	err := r.db.Preload("Product").Preload("Product.Images").Preload("Buyer").
+		Preload("AINegotiationLogs", func(db *gorm.DB) *gorm.DB {
+		return db.Order("created_at ASC")
+	}).Joins("JOIN products ON products.id = offers.product_id").
 		Where("products.seller_id = ?", sellerID).
 		Order("offers.created_at DESC").
 		Find(&offers).Error
@@ -55,4 +59,12 @@ func (r *offerRepository) FindBySellerID(sellerID uuid.UUID) ([]*domain.Offer, e
 
 func (r *offerRepository) Update(offer *domain.Offer) error {
 	return r.db.Save(offer).Error
+}
+
+func (r *offerRepository) CreateNegotiationLog(log *domain.NegotiationLog) error {
+	return r.db.Create(log).Error
+}
+
+func (r *offerRepository) ClearNegotiationLogs(offerID uuid.UUID) error {
+	return r.db.Where("offer_id = ?", offerID).Delete(&domain.NegotiationLog{}).Error
 }

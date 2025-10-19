@@ -128,11 +128,11 @@ export const PricePrediction: React.FC<PricePredictionProps> = ({
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'rising':
-        return '📈';
+        return '↗';
       case 'declining':
-        return '📉';
+        return '↘';
       default:
-        return '➡️';
+        return '→';
     }
   };
 
@@ -168,7 +168,7 @@ export const PricePrediction: React.FC<PricePredictionProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h3 className="text-2xl font-bold mb-6">🤖 AI価格予測</h3>
+      <h3 className="text-2xl font-bold mb-6">AI価格予測</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-blue-50 rounded-lg p-4">
@@ -262,7 +262,6 @@ export const PricePrediction: React.FC<PricePredictionProps> = ({
 
       <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <div className="flex items-start gap-2">
-          <span className="text-yellow-600">💡</span>
           <div className="text-sm text-yellow-800">
             <p className="font-semibold mb-1">価格設定のヒント</p>
             <p>

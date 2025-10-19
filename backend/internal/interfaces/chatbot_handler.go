@@ -130,7 +130,7 @@ func (h *ChatbotHandler) buildProductContext(products []*domain.Product) string 
 			Price:       p.Price,
 			Category:    p.Category,
 			Condition:   string(p.Condition),
-			CO2Impact:   p.CO2ImpactKg,
+			CO2Impact:   0, // CO2 feature removed
 			ImageURL:    imageURL,
 		})
 	}

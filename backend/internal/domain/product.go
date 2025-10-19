@@ -10,6 +10,7 @@ type ProductStatus string
 type ProductCondition string
 
 const (
+	StatusDraft   ProductStatus = "draft"
 	StatusActive  ProductStatus = "active"
 	StatusSold    ProductStatus = "sold"
 	StatusReserved ProductStatus = "reserved"
@@ -37,7 +38,6 @@ type Product struct {
 	EstimatedManufacturingYear int              `json:"estimated_manufacturing_year"`
 	AIGeneratedDescription     string           `json:"ai_generated_description"`
 	AISuggestedPrice           int              `json:"ai_suggested_price"`
-	CO2ImpactKg                float64          `json:"co2_impact_kg" gorm:"type:decimal(10,2)"`
 	ViewCount                  int              `json:"view_count" gorm:"default:0"`
 	FavoriteCount              int              `json:"favorite_count" gorm:"default:0"`
 	Has3DModel                 bool             `json:"has_3d_model" gorm:"default:false"`
@@ -76,7 +76,7 @@ type ProductFilters struct {
 	MaxPrice  int
 	Condition ProductCondition
 	Search    string
-	Sort      string // price_asc, price_desc, created_desc, eco_impact_desc
+	Sort      string // price_asc, price_desc, created_desc
 	Page      int
 	Limit     int
 }
@@ -98,9 +98,3 @@ type CreateProductRequest struct {
 	UseAIAssistance bool             `form:"use_ai_assistance"`
 }
 
-type CO2Comparison struct {
-	BuyingNewKg    float64 `json:"buying_new_kg"`
-	BuyingUsedKg   float64 `json:"buying_used_kg"`
-	SavedKg        float64 `json:"saved_kg"`
-	EquivalentTrees float64 `json:"equivalent_trees"`
-}
