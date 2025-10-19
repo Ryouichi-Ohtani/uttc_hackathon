@@ -63,3 +63,26 @@ type RespondOfferRequest struct {
 	Accept  *bool  `json:"accept" binding:"required"`
 	Message string `json:"message"`
 }
+
+// MarketPriceAnalysis represents AI-powered market price analysis
+type MarketPriceAnalysis struct {
+	ProductTitle       string              `json:"product_title"`
+	Category           string              `json:"category"`
+	Condition          string              `json:"condition"`
+	ListingPrice       int                 `json:"listing_price"`
+	RecommendedPrice   int                 `json:"recommended_price"`
+	MinPrice           int                 `json:"min_price"`
+	MaxPrice           int                 `json:"max_price"`
+	MarketDataSources  []MarketDataSource  `json:"market_data_sources"`
+	Analysis           string              `json:"analysis"`
+	ConfidenceLevel    string              `json:"confidence_level"` // "high", "medium", "low"
+	AnalyzedAt         time.Time           `json:"analyzed_at"`
+}
+
+// MarketDataSource represents a single market data point from external sources
+type MarketDataSource struct {
+	Platform  string `json:"platform"`  // "メルカリ", "ヤフオク", "Amazon", "楽天"
+	Price     int    `json:"price"`
+	Condition string `json:"condition"`
+	URL       string `json:"url,omitempty"`
+}

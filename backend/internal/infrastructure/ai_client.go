@@ -765,3 +765,143 @@ func (c *AIClient) GenerateSellerNegotiationArgumentWithPrompt(
 		ProposedPrice: result.ProposedPrice,
 	}, nil
 }
+
+// AnalyzeMarketPrice performs market price analysis using Gemini API with user message context
+func (c *AIClient) AnalyzeMarketPrice(
+	ctx context.Context,
+	productTitle string,
+	category string,
+	condition string,
+	listingPrice int,
+	manufacturingYear int,
+	buyerOfferPrice int,
+	buyerMessage string,
+	sellerResponseMessage string,
+) (*MarketPriceAnalysisResult, error) {
+	if c.geminiClient == nil {
+		return nil, fmt.Errorf("Gemini client not initialized")
+	}
+
+	conversationContext := ""
+	if buyerMessage != "" {
+		conversationContext += fmt.Sprintf("\n購入希望者のメッセージ: \"%s\"", buyerMessage)
+	}
+	if buyerOfferPrice > 0 {
+		conversationContext += fmt.Sprintf("\n購入希望者の提示価格: ¥%d", buyerOfferPrice)
+	}
+	if sellerResponseMessage != "" {
+		conversationContext += fmt.Sprintf("\n出品者の返答: \"%s\"", sellerResponseMessage)
+	}
+
+	prompt := fmt.Sprintf(`あなたは中古品フリーマーケットの価格分析の専門家AIです。
+以下の商品について、メルカリ、ヤフオク、Amazon、楽天市場の実際の取引データと、
+買い手と売り手のメッセージ内容を総合的に分析し、適正価格を提案してください。
+
+商品情報:
+- 商品名: %s
+- カテゴリー: %s
+- 状態: %s
+- 出品価格: ¥%d
+- 製造年: %d年
+%s
+
+【重要指示】
+1. メルカリ、ヤフオク、Amazon中古、楽天市場の4つのプラットフォームで類似商品の価格を調査
+2. 各プラットフォームで最低2-3件の価格データを収集
+3. 商品の状態(%s)を考慮した価格補正を実施
+4. 製造年(%d年)を考慮した価値減少率を計算
+5. **購入希望者と出品者のメッセージ内容を分析し、価格交渉の状況を理解**
+6. メッセージから読み取れる商品の価値や希少性、緊急度などを評価
+7. 客観的な根拠に基づいた適正価格レンジ(最低価格〜最高価格)を算出
+8. 現在の出品価格(¥%d)と購入希望価格が適正かどうかを評価
+
+以下のJSON形式で返してください（前置きなしで、JSONのみを返してください）：
+{
+  "recommended_price": 推奨価格（整数）,
+  "min_price": 最低価格（整数）,
+  "max_price": 最高価格（整数）,
+  "market_data": [
+    {
+      "platform": "メルカリ",
+      "price": 価格（整数）,
+      "condition": "商品状態"
+    },
+    {
+      "platform": "ヤフオク",
+      "price": 価格（整数）,
+      "condition": "商品状態"
+    },
+    {
+      "platform": "Amazon",
+      "price": 価格（整数）,
+      "condition": "商品状態"
+    },
+    {
+      "platform": "楽天",
+      "price": 価格（整数）,
+      "condition": "商品状態"
+    }
+  ],
+  "analysis": "詳細な分析結果（市場価格データと、ユーザーメッセージから読み取れる情報を含む、300文字以内）",
+  "confidence_level": "high/medium/low（データの信頼性レベル）"
+}
+
+【分析の良い例】
+"メルカリでは同モデルの新品が¥15,000-16,500で5件取引されています。ヤフオクでは¥14,800-16,200で3件落札されました。購入希望者のメッセージから、早急に購入したい意向が見られます。また出品者は価格にこだわりがある様子です。市場価格と交渉状況を考慮すると、適正価格は¥15,800-16,300のレンジです。"
+
+【分析の悪い例】
+"市場価格を考慮すると、この価格帯が妥当です。"（具体的な数字がない）`,
+		productTitle, category, condition, listingPrice, manufacturingYear,
+		conversationContext,
+		condition, manufacturingYear, listingPrice)
+
+	response, err := c.geminiClient.GenerateContent(ctx, prompt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to analyze market price: %w", err)
+	}
+
+	// Parse JSON response
+	var result MarketPriceAnalysisResult
+
+	// Try to extract JSON from response
+	if err := json.Unmarshal([]byte(response), &result); err != nil {
+		// If response contains markdown code blocks, extract JSON
+		start := -1
+		end := -1
+		for i := 0; i < len(response); i++ {
+			if response[i] == '{' && start == -1 {
+				start = i
+			}
+			if response[i] == '}' {
+				end = i
+			}
+		}
+		if start != -1 && end != -1 {
+			jsonStr := response[start : end+1]
+			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+				return nil, fmt.Errorf("failed to parse AI response: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		}
+	}
+
+	return &result, nil
+}
+
+// MarketPriceAnalysisResult represents the result of market price analysis
+type MarketPriceAnalysisResult struct {
+	RecommendedPrice  int                      `json:"recommended_price"`
+	MinPrice          int                      `json:"min_price"`
+	MaxPrice          int                      `json:"max_price"`
+	MarketData        []MarketDataSourceResult `json:"market_data"`
+	Analysis          string                   `json:"analysis"`
+	ConfidenceLevel   string                   `json:"confidence_level"`
+}
+
+// MarketDataSourceResult represents a single market data point
+type MarketDataSourceResult struct {
+	Platform  string `json:"platform"`
+	Price     int    `json:"price"`
+	Condition string `json:"condition"`
+}
