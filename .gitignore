@@ -70,3 +70,8 @@ cloudbuild.yaml
 # Temp
 tmp/
 temp/
+
+# MCP and authentication
+.playwright-mcp/
+.serena/
+auth.json

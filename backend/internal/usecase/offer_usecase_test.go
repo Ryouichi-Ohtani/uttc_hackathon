@@ -48,11 +48,21 @@ func (m *MockOfferRepository) Update(offer *domain.Offer) error {
 	return args.Error(0)
 }
 
+func (m *MockOfferRepository) ClearNegotiationLogs(offerID uuid.UUID) error {
+	args := m.Called(offerID)
+	return args.Error(0)
+}
+
+func (m *MockOfferRepository) CreateNegotiationLog(log *domain.NegotiationLog) error {
+	args := m.Called(log)
+	return args.Error(0)
+}
+
 func TestOfferUseCase_CreateOffer_Success(t *testing.T) {
 	// Arrange
 	mockOfferRepo := new(MockOfferRepository)
 	mockProductRepo := new(MockProductRepository)
-	useCase := usecase.NewOfferUseCase(mockOfferRepo, mockProductRepo)
+	useCase := usecase.NewOfferUseCase(mockOfferRepo, mockProductRepo, nil)
 
 	buyerID := uuid.New()
 	sellerID := uuid.New()
@@ -91,7 +101,7 @@ func TestOfferUseCase_CreateOffer_CannotOfferOnOwnProduct(t *testing.T) {
 	// Arrange
 	mockOfferRepo := new(MockOfferRepository)
 	mockProductRepo := new(MockProductRepository)
-	useCase := usecase.NewOfferUseCase(mockOfferRepo, mockProductRepo)
+	useCase := usecase.NewOfferUseCase(mockOfferRepo, mockProductRepo, nil)
 
 	userID := uuid.New()
 	productID := uuid.New()
@@ -118,7 +128,7 @@ func TestOfferUseCase_CreateOffer_PriceTooHigh(t *testing.T) {
 	// Arrange
 	mockOfferRepo := new(MockOfferRepository)
 	mockProductRepo := new(MockProductRepository)
-	useCase := usecase.NewOfferUseCase(mockOfferRepo, mockProductRepo)
+	useCase := usecase.NewOfferUseCase(mockOfferRepo, mockProductRepo, nil)
 
 	buyerID := uuid.New()
 	sellerID := uuid.New()

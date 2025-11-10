@@ -37,6 +37,27 @@ export interface RespondOfferRequest {
   message: string
 }
 
+export interface MarketDataSource {
+  platform: string
+  price: number
+  condition: string
+  url?: string
+}
+
+export interface MarketPriceAnalysis {
+  product_title: string
+  category: string
+  condition: string
+  listing_price: number
+  recommended_price: number
+  min_price: number
+  max_price: number
+  market_data_sources: MarketDataSource[]
+  analysis: string
+  confidence_level: 'high' | 'medium' | 'low'
+  analyzed_at: string
+}
+
 export const offerService = {
   async create(data: CreateOfferRequest): Promise<Offer> {
     const response = await api.post<Offer>('/offers', data)
@@ -66,5 +87,10 @@ export const offerService = {
 
   async retryAINegotiationWithPrompt(offerId: string, customPrompt: string): Promise<void> {
     await api.post(`/offers/${offerId}/ai-renegotiate`, { custom_prompt: customPrompt })
+  },
+
+  async getMarketPriceAnalysis(offerId: string): Promise<MarketPriceAnalysis> {
+    const response = await api.get<MarketPriceAnalysis>(`/offers/${offerId}/market-analysis`)
+    return response.data
   }
 }

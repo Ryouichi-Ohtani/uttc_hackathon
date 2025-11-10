@@ -235,6 +235,7 @@ func main() {
 			offers.GET("/products/:id/ai-suggestion", offerHandler.GetNegotiationSuggestion)
 			offers.POST("/:id/ai-negotiate", offerHandler.StartAINegotiation)
 			offers.POST("/:id/ai-renegotiate", offerHandler.RetryAINegotiationWithPrompt)
+			offers.GET("/:id/market-analysis", offerHandler.GetMarketPriceAnalysis)
 			offers.PATCH("/:id/respond", offerHandler.RespondOffer)
 		}
 

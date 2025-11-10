@@ -74,9 +74,11 @@ export const PurchaseProduct = () => {
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <h2 className="font-semibold mb-2">{product.title}</h2>
             <p className="text-2xl font-bold text-primary-600">¥{product.price.toLocaleString()}</p>
-            <p className="text-sm text-gray-600 mt-2">
-              🌱 CO2 Saved: {product.co2_impact_kg.toFixed(2)}kg
-            </p>
+            {product.co2_impact_kg && (
+              <p className="text-sm text-gray-600 mt-2">
+                🌱 CO2 Saved: {product.co2_impact_kg.toFixed(2)}kg
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

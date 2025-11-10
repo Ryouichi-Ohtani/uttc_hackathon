@@ -222,3 +222,26 @@ func (h *OfferHandler) RetryAINegotiationWithPrompt(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "AI re-negotiation started successfully"})
 }
+
+// GetMarketPriceAnalysis handles GET /offers/:id/market-analysis
+func (h *OfferHandler) GetMarketPriceAnalysis(c *gin.Context) {
+	_, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	offerID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offer ID"})
+		return
+	}
+
+	analysis, err := h.offerUseCase.GetMarketPriceAnalysis(offerID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, analysis)
+}

@@ -13,6 +13,7 @@ import { LiveAuction } from '@/components/auction/LiveAuction'
 import { OfferDialog } from '@/components/offers/OfferDialog'
 import { useTranslation } from '@/i18n/useTranslation'
 import toast from 'react-hot-toast'
+import { PRODUCT_DETAIL_PLACEHOLDER, THUMBNAIL_PLACEHOLDER } from '@/utils/placeholderImages'
 
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -128,12 +129,12 @@ export const ProductDetail = () => {
               <>
                 <Card padding="none" className="overflow-hidden mb-4">
                   <img
-                    src={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate')}
+                    src={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || PRODUCT_DETAIL_PLACEHOLDER)}
                     alt={product.title}
                     className="w-full h-96 object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
-                      target.src = 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate'
+                      target.src = PRODUCT_DETAIL_PLACEHOLDER
                     }}
                   />
                 </Card>
@@ -147,12 +148,12 @@ export const ProductDetail = () => {
                       }`}
                     >
                       <img
-                        src={(img.cdn_url && img.cdn_url.trim() !== '') ? img.cdn_url : (img.image_url || 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=Automate')}
+                        src={(img.cdn_url && img.cdn_url.trim() !== '') ? img.cdn_url : (img.image_url || THUMBNAIL_PLACEHOLDER)}
                         alt=""
                         className="w-full h-20 object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
-                          target.src = 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=Automate'
+                          target.src = THUMBNAIL_PLACEHOLDER
                         }}
                       />
                     </button>
@@ -171,7 +172,7 @@ export const ProductDetail = () => {
 
             {activeTab === 'ar' && (
               <ARTryOn
-                productImage={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || 'https://via.placeholder.com/800x600/10B981/FFFFFF?text=Automate')}
+                productImage={(currentImage?.cdn_url && currentImage.cdn_url.trim() !== '') ? currentImage.cdn_url : (currentImage?.image_url || PRODUCT_DETAIL_PLACEHOLDER)}
                 productName={product.title}
                 category={product.category}
               />

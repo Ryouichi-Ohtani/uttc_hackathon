@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '@/services/api'
 import { Button } from '@/components/common/Button'
 import toast from 'react-hot-toast'
+import { CHAT_PLACEHOLDER } from '@/utils/placeholderImages'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -151,12 +152,12 @@ export const AIChatbot = ({ isOpen, onClose }: AIChatbotProps) => {
                         className="w-full bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow flex items-center gap-3 text-left"
                       >
                         <img
-                          src={product.imageUrl || 'https://via.placeholder.com/80x80/10B981/FFFFFF?text=Automate'}
+                          src={product.imageUrl || CHAT_PLACEHOLDER}
                           alt={product.name}
                           className="w-16 h-16 object-cover rounded"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
-                            target.src = 'https://via.placeholder.com/80x80/10B981/FFFFFF?text=Automate'
+                            target.src = CHAT_PLACEHOLDER
                           }}
                         />
                         <div className="flex-1">

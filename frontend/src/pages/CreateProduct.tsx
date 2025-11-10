@@ -127,7 +127,7 @@ export const CreateProduct = () => {
     setStep('upload')
     setAiData(null)
     setUserHints('')
-    toast.info('再度画像をアップロードしてください')
+    toast('再度画像をアップロードしてください')
   }
 
   return (

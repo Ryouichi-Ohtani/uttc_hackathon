@@ -19,12 +19,13 @@ export interface Product {
   price: number
   category: string
   condition: 'new' | 'like_new' | 'good' | 'fair' | 'poor'
-  status: 'active' | 'sold' | 'reserved' | 'deleted'
+  status: 'draft' | 'active' | 'sold' | 'reserved' | 'deleted'
   weight_kg?: number
   manufacturer_country?: string
   estimated_manufacturing_year?: number
   ai_generated_description?: string
   ai_suggested_price?: number
+  co2_impact_kg?: number
   view_count: number
   favorite_count: number
   has_3d_model: boolean
@@ -150,6 +151,14 @@ export interface ProductFilters {
   sort?: string
   page?: number
   limit?: number
+  ai_generated?: boolean
+}
+
+export interface CO2Comparison {
+  product_co2: number
+  new_product_co2: number
+  saved_co2: number
+  saved_percentage: number
 }
 
 export interface AuthResponse {

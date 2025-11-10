@@ -81,7 +81,7 @@ func (c *GeminiClient) generateContentWithSearch(ctx context.Context, prompt str
 		return "", fmt.Errorf("Gemini client not initialized")
 	}
 
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=%s", c.apiKey)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=%s", c.apiKey)
 
 	reqBody := GeminiRequest{
 		Contents: []GeminiContent{
@@ -152,7 +152,7 @@ func (c *GeminiClient) AnalyzeProductImage(ctx context.Context, imageData string
 		return "", fmt.Errorf("Gemini client not initialized")
 	}
 
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=%s", c.apiKey)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=%s", c.apiKey)
 
 	prompt := `この商品画像を分析して、以下のJSON形式で情報を返してください。前置きなしで、JSONのみを返してください：
 

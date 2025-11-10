@@ -41,15 +41,15 @@ export const productService = {
   },
 
   getCO2Comparison(product: Product): CO2Comparison {
-    const savedKg = product.co2_impact_kg
-    const buyingNewKg = savedKg / 0.33
-    const buyingUsedKg = buyingNewKg - savedKg
+    const savedKg = product.co2_impact_kg ?? 0
+    const newProductCO2 = savedKg / 0.33
+    const productCO2 = newProductCO2 - savedKg
 
     return {
-      buying_new_kg: buyingNewKg,
-      buying_used_kg: buyingUsedKg,
-      saved_kg: savedKg,
-      equivalent_trees: savedKg / 20,
+      product_co2: productCO2,
+      new_product_co2: newProductCO2,
+      saved_co2: savedKg,
+      saved_percentage: savedKg > 0 ? (savedKg / newProductCO2) * 100 : 0,
     }
   },
 }

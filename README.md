@@ -547,5 +547,3 @@ MIT License
 UTTC Hackathon 2024
 
 ---
-
-**Built with 🤖 and ❤️ for an AI-powered future**

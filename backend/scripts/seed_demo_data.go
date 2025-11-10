@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
@@ -13,12 +12,12 @@ import (
 
 // Demo data entities (simplified)
 type User struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	Email     string    `gorm:"uniqueIndex;not null"`
-	Username  string    `gorm:"uniqueIndex;not null"`
-	Password  string    `gorm:"not null"`
-	Role      string    `gorm:"default:'user'"`
-	CreatedAt time.Time
+	ID           uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Email        string    `gorm:"uniqueIndex;not null"`
+	Username     string    `gorm:"uniqueIndex;not null"`
+	PasswordHash string    `gorm:"not null"`
+	Role         string    `gorm:"default:'user'"`
+	CreatedAt    time.Time
 }
 
 type Product struct {
@@ -30,39 +29,39 @@ type Product struct {
 	Category    string    `gorm:"not null"`
 	Condition   string    `gorm:"not null"`
 	Status      string    `gorm:"default:'active'"`
-	Views       int       `gorm:"default:0"`
+	ViewCount   int       `gorm:"default:0"`
 	CreatedAt   time.Time
 }
 
 func main() {
 	// Connect to database
-	dsn := "host=localhost user=postgres password=postgres dbname=ecomate port=5432 sslmode=disable"
+	dsn := "host=localhost user=ecomate password=ecomate_password dbname=ecomate_db port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	fmt.Println("🌱 Seeding demo data for EcoMate...")
+	fmt.Println("🌱 Seeding demo data for Automate...")
 
 	// Create demo users
 	users := []User{
 		{
-			Email:    "demo.seller@ecomate.com",
-			Username: "EcoSeller",
-			Password: "$2a$10$...", // bcrypt hash for "password123"
-			Role:     "user",
+			Email:        "demo.seller@automate.com",
+			Username:     "EcoSeller",
+			PasswordHash: "$2a$10$lxgFaUxK7nvh0TyoOiEFJ.UBvorIGTDZFxiRQXUBB1TJMJ8dyFida", // bcrypt hash for "password123"
+			Role:         "user",
 		},
 		{
-			Email:    "demo.buyer@ecomate.com",
-			Username: "GreenBuyer",
-			Password: "$2a$10$...",
-			Role:     "user",
+			Email:        "demo.buyer@automate.com",
+			Username:     "GreenBuyer",
+			PasswordHash: "$2a$10$lxgFaUxK7nvh0TyoOiEFJ.UBvorIGTDZFxiRQXUBB1TJMJ8dyFida",
+			Role:         "user",
 		},
 		{
-			Email:    "admin@ecomate.com",
-			Username: "AdminUser",
-			Password: "$2a$10$...",
-			Role:     "admin",
+			Email:        "admin@automate.com",
+			Username:     "AdminUser",
+			PasswordHash: "$2a$10$lxgFaUxK7nvh0TyoOiEFJ.UBvorIGTDZFxiRQXUBB1TJMJ8dyFida",
+			Role:         "admin",
 		},
 	}
 
@@ -76,7 +75,7 @@ func main() {
 
 	// Get seller ID
 	var seller User
-	db.Where("email = ?", "demo.seller@ecomate.com").First(&seller)
+	db.Where("email = ?", "demo.seller@automate.com").First(&seller)
 
 	// Create demo products
 	products := []Product{
@@ -88,7 +87,7 @@ func main() {
 			Category:    "electronics",
 			Condition:   "used",
 			Status:      "active",
-			Views:       156,
+			ViewCount:   156,
 		},
 		{
 			SellerID:    seller.ID,
@@ -98,7 +97,7 @@ func main() {
 			Category:    "furniture",
 			Condition:   "like_new",
 			Status:      "active",
-			Views:       243,
+			ViewCount:   243,
 		},
 		{
 			SellerID:    seller.ID,
@@ -108,7 +107,7 @@ func main() {
 			Category:    "fashion",
 			Condition:   "like_new",
 			Status:      "active",
-			Views:       89,
+			ViewCount:   89,
 		},
 		{
 			SellerID:    seller.ID,
@@ -118,7 +117,7 @@ func main() {
 			Category:    "electronics",
 			Condition:   "like_new",
 			Status:      "active",
-			Views:       412,
+			ViewCount:   412,
 		},
 		{
 			SellerID:    seller.ID,
@@ -128,7 +127,7 @@ func main() {
 			Category:    "home",
 			Condition:   "like_new",
 			Status:      "active",
-			Views:       178,
+			ViewCount:   178,
 		},
 	}
 
@@ -142,8 +141,8 @@ func main() {
 
 	fmt.Println("\n✨ Demo data seeding completed!")
 	fmt.Println("\nDemo Accounts:")
-	fmt.Println("  Seller: demo.seller@ecomate.com / password123")
-	fmt.Println("  Buyer:  demo.buyer@ecomate.com / password123")
-	fmt.Println("  Admin:  admin@ecomate.com / password123")
+	fmt.Println("  Seller: demo.seller@automate.com / password123")
+	fmt.Println("  Buyer:  demo.buyer@automate.com / password123")
+	fmt.Println("  Admin:  admin@automate.com / password123")
 	fmt.Println("\nUse these accounts for your demo presentation!")
 }

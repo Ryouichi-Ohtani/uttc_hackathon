@@ -78,7 +78,7 @@ export const Favorites = () => {
                   <span className="capitalize">{product.condition}</span>
                   <span>❤️ {product.favorite_count}</span>
                 </div>
-                {product.co2_impact_kg > 0 && (
+                {product.co2_impact_kg && product.co2_impact_kg > 0 && (
                   <div className="mt-2 text-sm text-green-600">
                     🌱 {product.co2_impact_kg.toFixed(2)} kg CO2 saved
                   </div>

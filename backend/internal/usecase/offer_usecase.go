@@ -28,6 +28,7 @@ type OfferUseCase interface {
 	GetNegotiationSuggestion(productID, userID uuid.UUID, isBuyer bool) (*NegotiationSuggestion, error)
 	StartAINegotiation(offerID uuid.UUID) error
 	RetryAINegotiationWithPrompt(offerID uuid.UUID, customPrompt string) error
+	GetMarketPriceAnalysis(offerID uuid.UUID) (*domain.MarketPriceAnalysis, error)
 	SetAIAgentUseCase(aiAgentUC AIAgentUseCaseInterface) // AI Agent連携用
 }
 
@@ -716,5 +717,65 @@ func joinStrings(strs []string, sep string) string {
 		result += sep + strs[i]
 	}
 	return result
+}
+
+// GetMarketPriceAnalysis analyzes market price for an offer using AI
+func (u *offerUseCase) GetMarketPriceAnalysis(offerID uuid.UUID) (*domain.MarketPriceAnalysis, error) {
+	// Fetch offer with product and buyer
+	offer, err := u.offerRepo.FindByID(offerID)
+	if err != nil {
+		return nil, fmt.Errorf("offer not found: %w", err)
+	}
+
+	if offer.Product == nil {
+		return nil, errors.New("product not loaded")
+	}
+
+	if u.aiClient == nil {
+		return nil, errors.New("AI client not available")
+	}
+
+	// Call AI client to analyze market price
+	ctx := context.Background()
+	result, err := u.aiClient.AnalyzeMarketPrice(
+		ctx,
+		offer.Product.Title,
+		offer.Product.Category,
+		string(offer.Product.Condition),
+		offer.Product.Price,
+		offer.Product.EstimatedManufacturingYear,
+		offer.OfferPrice,
+		offer.Message,
+		offer.ResponseMessage,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to analyze market price: %w", err)
+	}
+
+	// Convert to domain model
+	marketDataSources := make([]domain.MarketDataSource, len(result.MarketData))
+	for i, data := range result.MarketData {
+		marketDataSources[i] = domain.MarketDataSource{
+			Platform:  data.Platform,
+			Price:     data.Price,
+			Condition: data.Condition,
+		}
+	}
+
+	analysis := &domain.MarketPriceAnalysis{
+		ProductTitle:      offer.Product.Title,
+		Category:          offer.Product.Category,
+		Condition:         string(offer.Product.Condition),
+		ListingPrice:      offer.Product.Price,
+		RecommendedPrice:  result.RecommendedPrice,
+		MinPrice:          result.MinPrice,
+		MaxPrice:          result.MaxPrice,
+		MarketDataSources: marketDataSources,
+		Analysis:          result.Analysis,
+		ConfidenceLevel:   result.ConfidenceLevel,
+		AnalyzedAt:        time.Now(),
+	}
+
+	return analysis, nil
 }
 

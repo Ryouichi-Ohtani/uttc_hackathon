@@ -11,6 +11,7 @@ import { Purchases } from "./pages/Purchases";
 import { Messages } from "./pages/Messages";
 import { Chat } from "./pages/Chat";
 import { CreateProduct } from "./pages/CreateProduct";
+import AICreateProduct from "./pages/AICreateProduct";
 import { Profile } from "./pages/Profile";
 import { Leaderboard } from "./pages/Leaderboard";
 import { Favorites } from "./pages/Favorites";
@@ -113,6 +114,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ai/create"
+          element={
+            <ProtectedRoute>
+              <AICreateProduct />
             </ProtectedRoute>
           }
         />

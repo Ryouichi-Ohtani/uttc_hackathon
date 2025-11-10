@@ -6,8 +6,9 @@ import { Card } from '@/components/common/Card'
 import { Header } from '@/components/layout/Header'
 import api from '@/services/api'
 import { Product } from '@/types'
-import { offerService, Offer } from '@/services/offers'
+import { offerService, Offer, MarketPriceAnalysis } from '@/services/offers'
 import toast from 'react-hot-toast'
+import { PROFILE_PLACEHOLDER } from '@/utils/placeholderImages'
 
 export const Profile = () => {
   const navigate = useNavigate()
@@ -17,6 +18,8 @@ export const Profile = () => {
   const [filter, setFilter] = useState<'all' | 'active' | 'draft' | 'sold'>('all')
   const [offers, setOffers] = useState<Offer[]>([])
   const [activeTab, setActiveTab] = useState<'products' | 'offers'>('products')
+  const [marketAnalysis, setMarketAnalysis] = useState<{ [offerId: string]: MarketPriceAnalysis }>({})
+  const [loadingAnalysis, setLoadingAnalysis] = useState<{ [offerId: string]: boolean }>({})
 
   useEffect(() => {
     loadMyProducts()
@@ -91,6 +94,21 @@ export const Profile = () => {
       console.error('AI re-negotiation error:', error)
       const errorMessage = error.response?.data?.error || error.message || 'AI再交渉の開始に失敗しました'
       toast.error(errorMessage)
+    }
+  }
+
+  const handleGetMarketAnalysis = async (offerId: string) => {
+    try {
+      setLoadingAnalysis(prev => ({ ...prev, [offerId]: true }))
+      const analysis = await offerService.getMarketPriceAnalysis(offerId)
+      setMarketAnalysis(prev => ({ ...prev, [offerId]: analysis }))
+      toast.success('市場価格分析が完了しました')
+    } catch (error: any) {
+      console.error('Market analysis error:', error)
+      const errorMessage = error.response?.data?.error || error.message || '市場価格分析に失敗しました'
+      toast.error(errorMessage)
+    } finally {
+      setLoadingAnalysis(prev => ({ ...prev, [offerId]: false }))
     }
   }
 
@@ -297,13 +315,13 @@ export const Profile = () => {
                               src={
                                 product.images?.[0]?.cdn_url ||
                                 product.images?.[0]?.image_url ||
-                                'https://via.placeholder.com/200x200/10B981/FFFFFF?text=No+Image'
+                                PROFILE_PLACEHOLDER
                               }
                               alt={product.title}
                               className="w-32 h-32 object-cover rounded-lg"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement
-                                target.src = 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=No+Image'
+                                target.src = PROFILE_PLACEHOLDER
                               }}
                             />
                           </div>
@@ -421,13 +439,13 @@ export const Profile = () => {
                                 src={
                                   offer.product?.images?.[0]?.cdn_url ||
                                   offer.product?.images?.[0]?.image_url ||
-                                  'https://via.placeholder.com/200x200/10B981/FFFFFF?text=No+Image'
+                                  PROFILE_PLACEHOLDER
                                 }
                                 alt={offer.product?.title}
                                 className="w-24 h-24 object-cover rounded-lg"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement
-                                  target.src = 'https://via.placeholder.com/200x200/10B981/FFFFFF?text=No+Image'
+                                  target.src = PROFILE_PLACEHOLDER
                                 }}
                               />
                             </div>
@@ -492,6 +510,79 @@ export const Profile = () => {
                                 </div>
                               )}
 
+                              {/* Market Price Analysis */}
+                              {offer.status === 'pending' && (
+                                <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4 mb-3">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="text-sm font-bold text-green-700">AI市場価格分析</div>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleGetMarketAnalysis(offer.id)}
+                                      disabled={loadingAnalysis[offer.id]}
+                                      className="bg-green-500 text-white hover:bg-green-600 text-xs"
+                                    >
+                                      {loadingAnalysis[offer.id] ? '分析中...' : marketAnalysis[offer.id] ? '再分析' : '価格分析'}
+                                    </Button>
+                                  </div>
+
+                                  {marketAnalysis[offer.id] && (
+                                    <div className="space-y-3">
+                                      <div className="grid grid-cols-3 gap-2 text-xs">
+                                        <div className="bg-white rounded p-2">
+                                          <div className="text-gray-500">推奨価格</div>
+                                          <div className="text-lg font-bold text-green-600">
+                                            ¥{marketAnalysis[offer.id].recommended_price.toLocaleString()}
+                                          </div>
+                                        </div>
+                                        <div className="bg-white rounded p-2">
+                                          <div className="text-gray-500">最低価格</div>
+                                          <div className="text-sm font-semibold">
+                                            ¥{marketAnalysis[offer.id].min_price.toLocaleString()}
+                                          </div>
+                                        </div>
+                                        <div className="bg-white rounded p-2">
+                                          <div className="text-gray-500">最高価格</div>
+                                          <div className="text-sm font-semibold">
+                                            ¥{marketAnalysis[offer.id].max_price.toLocaleString()}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="bg-white rounded p-3">
+                                        <div className="text-xs font-semibold text-gray-700 mb-2">市場データ</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {marketAnalysis[offer.id].market_data_sources.map((data, idx) => (
+                                            <div key={idx} className="text-xs border-l-2 border-green-400 pl-2">
+                                              <div className="font-semibold">{data.platform}</div>
+                                              <div className="text-gray-600">
+                                                ¥{data.price.toLocaleString()} ({data.condition})
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+
+                                      <div className="bg-white rounded p-3">
+                                        <div className="text-xs font-semibold text-gray-700 mb-1">分析結果</div>
+                                        <div className="text-xs text-gray-600">{marketAnalysis[offer.id].analysis}</div>
+                                        <div className="mt-2 flex items-center gap-2">
+                                          <span className="text-xs text-gray-500">信頼度:</span>
+                                          <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                            marketAnalysis[offer.id].confidence_level === 'high' ? 'bg-green-100 text-green-700' :
+                                            marketAnalysis[offer.id].confidence_level === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                            'bg-red-100 text-red-700'
+                                          }`}>
+                                            {marketAnalysis[offer.id].confidence_level === 'high' ? '高' :
+                                             marketAnalysis[offer.id].confidence_level === 'medium' ? '中' : '低'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
                               {/* AI Negotiation Logs */}
                               {offer.ai_negotiation_logs && offer.ai_negotiation_logs.length > 0 && (
                                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-3">
@@ -504,7 +595,7 @@ export const Profile = () => {
                                     )}
                                   </div>
                                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                                    {offer.ai_negotiation_logs.map((log, idx) => (
+                                    {offer.ai_negotiation_logs.map((log) => (
                                       <div
                                         key={log.id}
                                         className={`text-xs p-2 rounded ${
