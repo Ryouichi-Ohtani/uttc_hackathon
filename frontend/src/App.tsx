@@ -8,6 +8,7 @@ import { Home } from "./pages/Home";
 import { ProductDetail } from "./pages/ProductDetail";
 import { PurchaseProduct } from "./pages/PurchaseProduct";
 import { Purchases } from "./pages/Purchases";
+import { ShippingLabel } from "./pages/ShippingLabel";
 import { Messages } from "./pages/Messages";
 import { Chat } from "./pages/Chat";
 import { CreateProduct } from "./pages/CreateProduct";
@@ -90,6 +91,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Purchases />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases/:purchaseId/shipping-label"
+          element={
+            <ProtectedRoute>
+              <ShippingLabel />
             </ProtectedRoute>
           }
         />

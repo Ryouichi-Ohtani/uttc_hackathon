@@ -23,6 +23,13 @@ type User struct {
 	AvatarURL          string     `json:"avatar_url"`
 	Bio                string     `json:"bio"`
 	Role               UserRole   `json:"role" gorm:"default:'user'"`
+	// Address information for shipping
+	PostalCode         string     `json:"postal_code"`
+	Prefecture         string     `json:"prefecture"`
+	City               string     `json:"city"`
+	AddressLine1       string     `json:"address_line1"`
+	AddressLine2       string     `json:"address_line2"`
+	PhoneNumber        string     `json:"phone_number"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 	DeletedAt          *time.Time `json:"-" gorm:"index"`

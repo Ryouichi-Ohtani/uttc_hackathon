@@ -118,7 +118,16 @@ export const Purchases = () => {
                         {new Date(purchase.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-4 flex flex-col gap-2">
+                      {filter === 'seller' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/purchases/${purchase.id}/shipping-label`)}
+                        >
+                          📦 配送伝票
+                        </Button>
+                      )}
                       {purchase.status === 'pending' && filter === 'seller' && (
                         <Button
                           size="sm"

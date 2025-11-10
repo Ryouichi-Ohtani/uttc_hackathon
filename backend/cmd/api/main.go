@@ -56,6 +56,7 @@ func main() {
 	chatHistoryRepo := infrastructure.NewChatHistoryRepository(db)
 	co2GoalRepo := infrastructure.NewCO2GoalRepository(db)
 	shippingRepo := infrastructure.NewShippingTrackingRepository(db)
+	shippingLabelRepo := infrastructure.NewShippingLabelRepository(db)
 	aiAgentRepo := infrastructure.NewAIAgentRepository(db)
 
 	// Add database indexes for performance
@@ -76,7 +77,7 @@ func main() {
 	// Initialize use cases
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWT.Secret, cfg.JWT.ExpirationHours)
 	productUseCase := usecase.NewProductUseCase(productRepo, aiClient)
-	purchaseUseCase := usecase.NewPurchaseUseCase(purchaseRepo, productRepo, userRepo)
+	purchaseUseCase := usecase.NewPurchaseUseCase(purchaseRepo, productRepo, userRepo, shippingLabelRepo)
 	messageUseCase := usecase.NewMessageUseCase(messageRepo, productRepo)
 	sustainabilityUseCase := usecase.NewSustainabilityUseCase(sustainabilityRepo, userRepo)
 	notificationUseCase := usecase.NewNotificationUseCase(notificationRepo)
@@ -174,6 +175,8 @@ func main() {
 			purchases.GET("", purchaseHandler.List)
 			purchases.GET("/:id", purchaseHandler.GetByID)
 			purchases.PATCH("/:id/complete", purchaseHandler.Complete)
+			purchases.GET("/:id/shipping-label", purchaseHandler.GetShippingLabel)
+			purchases.POST("/:id/shipping-label", purchaseHandler.GenerateShippingLabel)
 		}
 
 		// Messaging routes
