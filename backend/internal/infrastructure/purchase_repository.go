@@ -83,6 +83,49 @@ func (r *purchaseRepository) FindByUser(userID uuid.UUID, role string, page, lim
 	return purchases, pagination, nil
 }
 
+func (r *purchaseRepository) List(page, limit int) ([]*domain.Purchase, *domain.PaginationResponse, error) {
+	var purchases []*domain.Purchase
+	var total int64
+
+	query := r.db.Model(&domain.Purchase{}).
+		Preload("Product").
+		Preload("Product.Images", "is_primary = true").
+		Preload("Buyer").
+		Preload("Seller")
+
+	// Count total
+	if err := query.Count(&total).Error; err != nil {
+		return nil, nil, err
+	}
+
+	// Pagination
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+
+	offset := (page - 1) * limit
+	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&purchases).Error; err != nil {
+		return nil, nil, err
+	}
+
+	totalPages := int(total) / limit
+	if int(total)%limit > 0 {
+		totalPages++
+	}
+
+	pagination := &domain.PaginationResponse{
+		Page:       page,
+		Limit:      limit,
+		Total:      int(total),
+		TotalPages: totalPages,
+	}
+
+	return purchases, pagination, nil
+}
+
 func (r *purchaseRepository) UpdateStatus(id uuid.UUID, status domain.PurchaseStatus) error {
 	return r.db.Model(&domain.Purchase{}).
 		Where("id = ?", id).

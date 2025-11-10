@@ -18,6 +18,7 @@ import { Profile } from "./pages/Profile";
 import { Leaderboard } from "./pages/Leaderboard";
 import { Favorites } from "./pages/Favorites";
 import { Notifications } from "./pages/Notifications";
+import { AdminDashboard } from "./pages/AdminDashboard";
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -172,6 +173,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />

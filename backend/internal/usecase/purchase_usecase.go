@@ -12,7 +12,9 @@ type PurchaseUseCase interface {
 	Create(userID uuid.UUID, req *domain.CreatePurchaseRequest) (*domain.Purchase, error)
 	GetByID(id uuid.UUID) (*domain.Purchase, error)
 	ListByUser(userID uuid.UUID, role string, page, limit int) ([]*domain.Purchase, *domain.PaginationResponse, error)
+	List(page, limit int) ([]*domain.Purchase, *domain.PaginationResponse, error)
 	CompletePurchase(id uuid.UUID, userID uuid.UUID) error
+	UpdatePurchaseStatus(id uuid.UUID, status domain.PurchaseStatus) error
 	GetShippingLabel(purchaseID uuid.UUID, userID uuid.UUID) (*domain.ShippingLabel, error)
 	GenerateShippingLabel(purchaseID uuid.UUID, userID uuid.UUID) (*domain.ShippingLabel, error)
 }
@@ -124,6 +126,14 @@ func (u *purchaseUseCase) GetByID(id uuid.UUID) (*domain.Purchase, error) {
 
 func (u *purchaseUseCase) ListByUser(userID uuid.UUID, role string, page, limit int) ([]*domain.Purchase, *domain.PaginationResponse, error) {
 	return u.purchaseRepo.FindByUser(userID, role, page, limit)
+}
+
+func (u *purchaseUseCase) List(page, limit int) ([]*domain.Purchase, *domain.PaginationResponse, error) {
+	return u.purchaseRepo.List(page, limit)
+}
+
+func (u *purchaseUseCase) UpdatePurchaseStatus(id uuid.UUID, status domain.PurchaseStatus) error {
+	return u.purchaseRepo.UpdateStatus(id, status)
 }
 
 func (u *purchaseUseCase) CompletePurchase(id uuid.UUID, userID uuid.UUID) error {

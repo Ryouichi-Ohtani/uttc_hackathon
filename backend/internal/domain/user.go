@@ -53,6 +53,8 @@ type UserRepository interface {
 	FindByEmail(email string) (*User, error)
 	FindByUsername(username string) (*User, error)
 	Update(user *User) error
+	Delete(id uuid.UUID) error
+	List(page, limit int) ([]*User, int64, error)
 	UpdateSustainabilityStats(userID uuid.UUID, co2SavedKg float64) error
 	GetLeaderboard(limit int, period string) ([]*LeaderboardEntry, error)
 }

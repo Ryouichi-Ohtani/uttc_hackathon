@@ -45,6 +45,7 @@ type PurchaseRepository interface {
 	Create(purchase *Purchase) error
 	FindByID(id uuid.UUID) (*Purchase, error)
 	FindByUser(userID uuid.UUID, role string, page, limit int) ([]*Purchase, *PaginationResponse, error)
+	List(page, limit int) ([]*Purchase, *PaginationResponse, error)
 	UpdateStatus(id uuid.UUID, status PurchaseStatus) error
 }
 

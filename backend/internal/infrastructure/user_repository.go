@@ -65,3 +65,28 @@ func (r *userRepository) GetLeaderboard(limit int, period string) ([]*domain.Lea
 	// Leaderboard feature removed - AI Agent focused app
 	return []*domain.LeaderboardEntry{}, nil
 }
+
+func (r *userRepository) Delete(id uuid.UUID) error {
+	return r.db.Where("id = ?", id).Delete(&domain.User{}).Error
+}
+
+func (r *userRepository) List(page, limit int) ([]*domain.User, int64, error) {
+	var users []*domain.User
+	var total int64
+
+	// Count total
+	if err := r.db.Model(&domain.User{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated list
+	offset := (page - 1) * limit
+	if err := r.db.Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
+}

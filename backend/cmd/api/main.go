@@ -129,7 +129,7 @@ func main() {
 	auctionHandler := interfaces.NewAuctionHandler(auctionUseCase)
 	voiceSearchHandler := interfaces.NewVoiceSearchHandler(voiceSearchUseCase)
 	blockchainHandler := interfaces.NewBlockchainHandler(blockchainUseCase)
-	adminHandler := interfaces.NewAdminHandler(productUseCase, authUseCase)
+	adminHandler := interfaces.NewAdminHandler(productUseCase, authUseCase, purchaseUseCase)
 	uploadHandler := interfaces.NewUploadHandler()
 	aiHandler := interfaces.NewAIHandler()
 	chatHistoryHandler := interfaces.NewChatHistoryHandler(chatHistoryUseCase)
@@ -354,10 +354,19 @@ func main() {
 		admin.Use(interfaces.AuthMiddleware(authUseCase))
 		admin.Use(interfaces.AdminMiddleware())
 		{
+			// Product management
 			admin.GET("/products", adminHandler.GetAllProducts)
 			admin.PUT("/products/:id", adminHandler.AdminUpdateProduct)
 			admin.DELETE("/products/:id", adminHandler.AdminDeleteProduct)
+
+			// User management
 			admin.GET("/users", adminHandler.GetAllUsers)
+			admin.PUT("/users/:id", adminHandler.UpdateUser)
+			admin.DELETE("/users/:id", adminHandler.DeleteUser)
+
+			// Purchase management
+			admin.GET("/purchases", adminHandler.GetAllPurchases)
+			admin.PUT("/purchases/:id", adminHandler.UpdatePurchase)
 		}
 
 		// Auto-Purchase routes

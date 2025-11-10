@@ -13,7 +13,8 @@ import {
   SunIcon,
   MoonIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline'
 
 export const Header = () => {
@@ -58,7 +59,7 @@ export const Header = () => {
     }
   }
 
-  const menuItems = [
+  const baseMenuItems = [
     { path: '/', label: 'ホーム', icon: HomeIcon },
     { path: '/create', label: '出品', icon: PlusCircleIcon },
     { path: '/ai/create', label: 'AI出品', icon: SparklesIcon, aiFeature: true },
@@ -67,6 +68,14 @@ export const Header = () => {
     { path: '/favorites', label: 'お気に入り', icon: HeartIcon },
     { path: '/profile', label: 'マイページ', icon: UserCircleIcon },
   ]
+
+  // Add admin link for admin users
+  const menuItems = user?.role === 'admin'
+    ? [
+        ...baseMenuItems,
+        { path: '/admin', label: '管理者', icon: ShieldCheckIcon, adminFeature: true }
+      ]
+    : baseMenuItems
 
   const isActive = (path: string) => location.pathname === path
 
@@ -120,6 +129,8 @@ export const Header = () => {
                           ? 'text-primary-600 bg-primary-50'
                           : item.aiFeature
                           ? 'text-white bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-mercari'
+                          : (item as any).adminFeature
+                          ? 'text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-mercari'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }
                       `}
@@ -128,7 +139,7 @@ export const Header = () => {
                         <Icon className="w-4 h-4" />
                         {item.label}
                       </span>
-                      {active && !item.aiFeature && (
+                      {active && !item.aiFeature && !(item as any).adminFeature && (
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full" />
                       )}
                     </button>
@@ -223,6 +234,8 @@ export const Header = () => {
                           ? 'text-primary-600 bg-primary-50'
                           : item.aiFeature
                           ? 'text-white bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-mercari'
+                          : (item as any).adminFeature
+                          ? 'text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-mercari'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }
                       `}

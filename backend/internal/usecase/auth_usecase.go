@@ -98,6 +98,56 @@ func (uc *AuthUseCase) GetUserByID(id uuid.UUID) (*domain.User, error) {
 	return uc.userRepo.FindByID(id)
 }
 
+func (uc *AuthUseCase) ListUsers(page, limit int) ([]*domain.User, int64, error) {
+	return uc.userRepo.List(page, limit)
+}
+
+func (uc *AuthUseCase) UpdateUser(id uuid.UUID, updates map[string]interface{}) (*domain.User, error) {
+	user, err := uc.userRepo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply updates
+	if displayName, ok := updates["display_name"].(string); ok {
+		user.DisplayName = displayName
+	}
+	if role, ok := updates["role"].(domain.UserRole); ok {
+		user.Role = role
+	}
+	if bio, ok := updates["bio"].(string); ok {
+		user.Bio = bio
+	}
+	if postalCode, ok := updates["postal_code"].(string); ok {
+		user.PostalCode = postalCode
+	}
+	if prefecture, ok := updates["prefecture"].(string); ok {
+		user.Prefecture = prefecture
+	}
+	if city, ok := updates["city"].(string); ok {
+		user.City = city
+	}
+	if addressLine1, ok := updates["address_line1"].(string); ok {
+		user.AddressLine1 = addressLine1
+	}
+	if addressLine2, ok := updates["address_line2"].(string); ok {
+		user.AddressLine2 = addressLine2
+	}
+	if phoneNumber, ok := updates["phone_number"].(string); ok {
+		user.PhoneNumber = phoneNumber
+	}
+
+	if err := uc.userRepo.Update(user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (uc *AuthUseCase) DeleteUser(id uuid.UUID) error {
+	return uc.userRepo.Delete(id)
+}
+
 func (uc *AuthUseCase) generateToken(userID uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID.String(),
