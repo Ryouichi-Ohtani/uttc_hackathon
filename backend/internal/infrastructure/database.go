@@ -53,6 +53,9 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.AINegotiationSettings{},
 		&domain.AIShippingPreparation{},
 		&domain.AIAgentLog{},
+		// Auto-Purchase Models
+		&domain.AutoPurchaseWatch{},
+		&domain.AutoPurchaseLog{},
 	)
 }
 

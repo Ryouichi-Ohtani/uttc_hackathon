@@ -9,6 +9,7 @@ import { ProductDetail } from "./pages/ProductDetail";
 import { PurchaseProduct } from "./pages/PurchaseProduct";
 import { Purchases } from "./pages/Purchases";
 import { ShippingLabel } from "./pages/ShippingLabel";
+import { AutoPurchaseWatches } from "./pages/AutoPurchaseWatches";
 import { Messages } from "./pages/Messages";
 import { Chat } from "./pages/Chat";
 import { CreateProduct } from "./pages/CreateProduct";
@@ -99,6 +100,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ShippingLabel />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/auto-purchases"
+          element={
+            <ProtectedRoute>
+              <AutoPurchaseWatches />
             </ProtectedRoute>
           }
         />

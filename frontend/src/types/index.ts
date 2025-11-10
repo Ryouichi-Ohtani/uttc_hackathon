@@ -235,3 +235,67 @@ export interface Review {
   created_at: string
   updated_at: string
 }
+
+// Auto-Purchase types
+export interface PaymentAuthorizationRequest {
+  card_number: string
+  expiry_month: number
+  expiry_year: number
+  cvv: string
+  cardholder_name: string
+  amount: number
+}
+
+export interface PaymentAuthorizationResponse {
+  payment_method_id: string
+  payment_auth_token: string
+  authorized_amount: number
+  expires_at: string
+  last4: string
+}
+
+export interface AutoPurchaseWatch {
+  id: string
+  user_id: string
+  product_id: string
+  product?: Product
+  max_price: number
+  status: 'active' | 'executed' | 'cancelled' | 'expired'
+  payment_authorized: boolean
+  payment_method_id: string
+  payment_auth_token: string
+  authorized_amount: number
+  delivery_date?: string
+  delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
+  shipping_address: string
+  recipient_name: string
+  recipient_phone_number: string
+  recipient_postal_code: string
+  recipient_prefecture: string
+  recipient_city: string
+  recipient_address_line1: string
+  recipient_address_line2?: string
+  expires_at: string
+  executed_at?: string
+  purchase_id?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateAutoPurchaseWatchRequest {
+  product_id: string
+  max_price: number
+  payment_method_id: string
+  payment_auth_token: string
+  authorized_amount: number
+  delivery_date?: string
+  delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
+  shipping_address: string
+  recipient_name: string
+  recipient_phone_number: string
+  recipient_postal_code: string
+  recipient_prefecture: string
+  recipient_city: string
+  recipient_address_line1: string
+  recipient_address_line2?: string
+}

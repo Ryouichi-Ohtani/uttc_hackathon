@@ -58,6 +58,8 @@ func main() {
 	shippingRepo := infrastructure.NewShippingTrackingRepository(db)
 	shippingLabelRepo := infrastructure.NewShippingLabelRepository(db)
 	aiAgentRepo := infrastructure.NewAIAgentRepository(db)
+	autoPurchaseRepo := infrastructure.NewAutoPurchaseWatchRepository(db)
+	autoPurchaseLogRepo := infrastructure.NewAutoPurchaseLogRepository(db)
 
 	// Add database indexes for performance
 	if err := infrastructure.AddIndexes(db); err != nil {
@@ -97,6 +99,17 @@ func main() {
 	geminiClient := infrastructure.NewGeminiClient()
 	aiAgentUseCase := usecase.NewAIAgentUseCase(aiAgentRepo, productRepo, offerRepo, purchaseRepo, geminiClient)
 
+	// Initialize Auto-Purchase use case
+	autoPurchaseUseCase := usecase.NewAutoPurchaseUseCase(
+		autoPurchaseRepo,
+		autoPurchaseLogRepo,
+		productRepo,
+		userRepo,
+		purchaseRepo,
+		shippingLabelRepo,
+		notificationRepo,
+	)
+
 	// Connect AI Agent to Offer UseCase (for automatic negotiation)
 	offerUseCase.SetAIAgentUseCase(aiAgentUseCase)
 
@@ -123,6 +136,7 @@ func main() {
 	co2GoalHandler := interfaces.NewCO2GoalHandler(co2GoalUseCase)
 	shippingHandler := interfaces.NewShippingHandler(shippingUseCase)
 	aiAgentHandler := interfaces.NewAIAgentHandler(aiAgentUseCase)
+	autoPurchaseHandler := interfaces.NewAutoPurchaseHandler(autoPurchaseUseCase)
 
 	// Setup Gin
 	gin.SetMode(cfg.Server.GinMode)
@@ -345,6 +359,20 @@ func main() {
 			admin.DELETE("/products/:id", adminHandler.AdminDeleteProduct)
 			admin.GET("/users", adminHandler.GetAllUsers)
 		}
+
+		// Auto-Purchase routes
+		autoPurchases := v1.Group("/auto-purchases")
+		autoPurchases.Use(interfaces.AuthMiddleware(authUseCase))
+		{
+			autoPurchases.POST("/authorize-payment", autoPurchaseHandler.AuthorizePayment)
+			autoPurchases.POST("", autoPurchaseHandler.CreateWatch)
+			autoPurchases.GET("", autoPurchaseHandler.GetUserWatches)
+			autoPurchases.GET("/:id", autoPurchaseHandler.GetWatch)
+			autoPurchases.DELETE("/:id", autoPurchaseHandler.CancelWatch)
+		}
+
+		// Background job endpoint (should be protected in production)
+		v1.POST("/auto-purchases/check-and-execute", autoPurchaseHandler.CheckAndExecute)
 	}
 
 	// Serve uploaded files
