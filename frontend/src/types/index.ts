@@ -6,6 +6,13 @@ export interface User {
   avatar_url?: string
   bio?: string
   role: string
+  // Address information for shipping
+  postal_code?: string
+  prefecture?: string
+  city?: string
+  address_line1?: string
+  address_line2?: string
+  phone_number?: string
   created_at: string
   updated_at: string
 }
@@ -60,8 +67,51 @@ export interface Purchase {
   status: 'pending' | 'completed' | 'cancelled'
   payment_method?: string
   shipping_address?: string
+  // Delivery information
+  delivery_date?: string
+  delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
+  use_registered_address?: boolean
+  recipient_name?: string
+  recipient_phone_number?: string
+  recipient_postal_code?: string
+  recipient_prefecture?: string
+  recipient_city?: string
+  recipient_address_line1?: string
+  recipient_address_line2?: string
   completed_at?: string
   created_at: string
+}
+
+export interface ShippingLabel {
+  id: string
+  purchase_id: string
+  purchase?: Purchase
+  // Sender (Seller) information
+  sender_name: string
+  sender_postal_code: string
+  sender_prefecture: string
+  sender_city: string
+  sender_address_line1: string
+  sender_address_line2?: string
+  sender_phone_number: string
+  // Recipient (Buyer) information
+  recipient_name: string
+  recipient_postal_code: string
+  recipient_prefecture: string
+  recipient_city: string
+  recipient_address_line1: string
+  recipient_address_line2?: string
+  recipient_phone_number: string
+  // Delivery details
+  delivery_date?: string
+  delivery_time_slot?: string
+  product_name: string
+  package_size: string
+  weight: number
+  tracking_number?: string
+  carrier: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Conversation {
@@ -184,4 +234,68 @@ export interface Review {
   comment: string
   created_at: string
   updated_at: string
+}
+
+// Auto-Purchase types
+export interface PaymentAuthorizationRequest {
+  card_number: string
+  expiry_month: number
+  expiry_year: number
+  cvv: string
+  cardholder_name: string
+  amount: number
+}
+
+export interface PaymentAuthorizationResponse {
+  authorized: boolean
+  payment_method_id: string
+  auth_token: string
+  expires_at: string
+  message: string
+}
+
+export interface AutoPurchaseWatch {
+  id: string
+  user_id: string
+  product_id: string
+  product?: Product
+  max_price: number
+  status: 'active' | 'executed' | 'cancelled' | 'expired'
+  payment_authorized: boolean
+  payment_method_id: string
+  payment_auth_token: string
+  use_registered_address?: boolean
+  delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
+  shipping_address: string
+  recipient_name: string
+  recipient_phone_number: string
+  recipient_postal_code: string
+  recipient_prefecture: string
+  recipient_city: string
+  recipient_address_line1: string
+  recipient_address_line2?: string
+  last_checked_at?: string
+  expires_at: string
+  executed_at?: string
+  purchase_id?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateAutoPurchaseWatchRequest {
+  product_id: string
+  max_price: number
+  payment_method_id: string
+  payment_auth_token: string
+  use_registered_address?: boolean
+  delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
+  shipping_address: string
+  recipient_name: string
+  recipient_phone_number: string
+  recipient_postal_code: string
+  recipient_prefecture: string
+  recipient_city: string
+  recipient_address_line1: string
+  recipient_address_line2?: string
+  expires_in_days?: number
 }

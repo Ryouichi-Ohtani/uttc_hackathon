@@ -15,11 +15,11 @@ import (
 )
 
 type AIAgentUseCase struct {
-	aiAgentRepo   domain.AIAgentRepository
-	productRepo   domain.ProductRepository
-	offerRepo     domain.OfferRepository
-	purchaseRepo  domain.PurchaseRepository
-	geminiClient  *infrastructure.GeminiClient
+	aiAgentRepo  domain.AIAgentRepository
+	productRepo  domain.ProductRepository
+	offerRepo    domain.OfferRepository
+	purchaseRepo domain.PurchaseRepository
+	geminiClient *infrastructure.GeminiClient
 }
 
 func NewAIAgentUseCase(
@@ -1080,14 +1080,14 @@ func (uc *AIAgentUseCase) estimateShippingInfo(product *domain.Product, purchase
 
 	// JSONパース
 	var result struct {
-		Carrier              string  `json:"carrier"`
-		PackageSize          string  `json:"package_size"`
-		EstimatedWeight      float64 `json:"estimated_weight"`
-		EstimatedCost        int     `json:"estimated_cost"`
-		Instructions         string  `json:"instructions"`
-		EstimatedDeliveryDays int    `json:"estimated_delivery_days"`
-		Region               string  `json:"region"`
-		Reasoning            string  `json:"reasoning"`
+		Carrier               string  `json:"carrier"`
+		PackageSize           string  `json:"package_size"`
+		EstimatedWeight       float64 `json:"estimated_weight"`
+		EstimatedCost         int     `json:"estimated_cost"`
+		Instructions          string  `json:"instructions"`
+		EstimatedDeliveryDays int     `json:"estimated_delivery_days"`
+		Region                string  `json:"region"`
+		Reasoning             string  `json:"reasoning"`
 	}
 
 	jsonStr := response
@@ -1185,14 +1185,14 @@ func (uc *AIAgentUseCase) estimateShippingInfoFallback(product *domain.Product, 
 func (uc *AIAgentUseCase) detectRegion(address string) string {
 	regions := map[string][]string{
 		"北海道": {"北海道"},
-		"東北":   {"青森", "岩手", "宮城", "秋田", "山形", "福島"},
-		"関東":   {"東京", "神奈川", "千葉", "埼玉", "茨城", "栃木", "群馬"},
-		"中部":   {"新潟", "富山", "石川", "福井", "山梨", "長野", "岐阜", "静岡", "愛知"},
-		"関西":   {"三重", "滋賀", "京都", "大阪", "兵庫", "奈良", "和歌山"},
-		"中国":   {"鳥取", "島根", "岡山", "広島", "山口"},
-		"四国":   {"徳島", "香川", "愛媛", "高知"},
-		"九州":   {"福岡", "佐賀", "長崎", "熊本", "大分", "宮崎", "鹿児島"},
-		"沖縄":   {"沖縄"},
+		"東北":  {"青森", "岩手", "宮城", "秋田", "山形", "福島"},
+		"関東":  {"東京", "神奈川", "千葉", "埼玉", "茨城", "栃木", "群馬"},
+		"中部":  {"新潟", "富山", "石川", "福井", "山梨", "長野", "岐阜", "静岡", "愛知"},
+		"関西":  {"三重", "滋賀", "京都", "大阪", "兵庫", "奈良", "和歌山"},
+		"中国":  {"鳥取", "島根", "岡山", "広島", "山口"},
+		"四国":  {"徳島", "香川", "愛媛", "高知"},
+		"九州":  {"福岡", "佐賀", "長崎", "熊本", "大分", "宮崎", "鹿児島"},
+		"沖縄":  {"沖縄"},
 	}
 
 	for region, prefectures := range regions {
@@ -1211,14 +1211,14 @@ func (uc *AIAgentUseCase) adjustCostByRegion(baseCost int, region string) int {
 	// 地域別の料金調整率
 	adjustments := map[string]float64{
 		"北海道": 1.3,  // +30%
-		"東北":   1.1,  // +10%
-		"関東":   1.0,  // 基準
-		"中部":   1.0,  // 基準
-		"関西":   1.05, // +5%
-		"中国":   1.1,  // +10%
-		"四国":   1.15, // +15%
-		"九州":   1.2,  // +20%
-		"沖縄":   1.5,  // +50%
+		"東北":  1.1,  // +10%
+		"関東":  1.0,  // 基準
+		"中部":  1.0,  // 基準
+		"関西":  1.05, // +5%
+		"中国":  1.1,  // +10%
+		"四国":  1.15, // +15%
+		"九州":  1.2,  // +20%
+		"沖縄":  1.5,  // +50%
 	}
 
 	adjustment, exists := adjustments[region]
@@ -1322,13 +1322,13 @@ func (uc *AIAgentUseCase) PredictOptimalPrice(ctx context.Context, product *doma
 
 // PricePrediction represents ML-based price prediction results
 type PricePrediction struct {
-	PredictedPrice      int                    `json:"predicted_price"`
-	Confidence          int                    `json:"confidence"`
-	PriceRange          PriceRange             `json:"price_range"`
-	ExpectedDaysToSell  int                    `json:"expected_days_to_sell"`
-	SellProbability     SellProbabilityMatrix  `json:"sell_probability"`
-	Reasoning           string                 `json:"reasoning"`
-	PricingStrategy     string                 `json:"pricing_strategy"`
+	PredictedPrice     int                   `json:"predicted_price"`
+	Confidence         int                   `json:"confidence"`
+	PriceRange         PriceRange            `json:"price_range"`
+	ExpectedDaysToSell int                   `json:"expected_days_to_sell"`
+	SellProbability    SellProbabilityMatrix `json:"sell_probability"`
+	Reasoning          string                `json:"reasoning"`
+	PricingStrategy    string                `json:"pricing_strategy"`
 }
 
 type PriceRange struct {
@@ -1426,17 +1426,17 @@ func (uc *AIAgentUseCase) PredictDemand(ctx context.Context, product *domain.Sug
 
 // DemandPrediction represents demand prediction results
 type DemandPrediction struct {
-	DemandLevel        string   `json:"demand_level"`
-	DemandScore        int      `json:"demand_score"`
-	ExpectedViews      int      `json:"expected_views"`
-	ExpectedInquiries  int      `json:"expected_inquiries"`
-	CompetitionLevel   string   `json:"competition_level"`
-	BestListingTime    string   `json:"best_listing_time"`
-	SeasonalFactor     float64  `json:"seasonal_factor"`
-	TrendDirection     string   `json:"trend_direction"`
-	TargetAudience     string   `json:"target_audience"`
-	OptimizationTips   []string `json:"optimization_tips"`
-	Reasoning          string   `json:"reasoning"`
+	DemandLevel       string   `json:"demand_level"`
+	DemandScore       int      `json:"demand_score"`
+	ExpectedViews     int      `json:"expected_views"`
+	ExpectedInquiries int      `json:"expected_inquiries"`
+	CompetitionLevel  string   `json:"competition_level"`
+	BestListingTime   string   `json:"best_listing_time"`
+	SeasonalFactor    float64  `json:"seasonal_factor"`
+	TrendDirection    string   `json:"trend_direction"`
+	TargetAudience    string   `json:"target_audience"`
+	OptimizationTips  []string `json:"optimization_tips"`
+	Reasoning         string   `json:"reasoning"`
 }
 
 // getSeason - 月から季節を判定

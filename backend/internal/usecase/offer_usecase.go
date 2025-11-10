@@ -38,10 +38,10 @@ type AIAgentUseCaseInterface interface {
 }
 
 type offerUseCase struct {
-	offerRepo    domain.OfferRepository
-	productRepo  domain.ProductRepository
-	aiClient     *infrastructure.AIClient
-	aiAgentUC    AIAgentUseCaseInterface // AI Agent連携
+	offerRepo   domain.OfferRepository
+	productRepo domain.ProductRepository
+	aiClient    *infrastructure.AIClient
+	aiAgentUC   AIAgentUseCaseInterface // AI Agent連携
 }
 
 func NewOfferUseCase(
@@ -347,7 +347,7 @@ func (u *offerUseCase) StartAINegotiation(offerID uuid.UUID) error {
 			Message: sellerMessage,
 			Price:   &sellerNewPrice,
 		}
-		if err := u.offerRepo.CreateNegotiationLog(sellerLog); err != nil{
+		if err := u.offerRepo.CreateNegotiationLog(sellerLog); err != nil {
 			fmt.Printf("[AI_NEGOTIATION] Failed to create seller log: %v\n", err)
 		}
 		fmt.Printf("[AI_NEGOTIATION] Seller AI: ¥%d - %s\n", sellerNewPrice, sellerMessage)
@@ -778,4 +778,3 @@ func (u *offerUseCase) GetMarketPriceAnalysis(offerID uuid.UUID) (*domain.Market
 
 	return analysis, nil
 }
-

@@ -27,16 +27,16 @@ type Notification struct {
 }
 
 type Review struct {
-	ID         uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID  uuid.UUID  `json:"product_id" gorm:"type:uuid;not null;index"`
-	Product    *Product   `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	PurchaseID uuid.UUID  `json:"purchase_id" gorm:"type:uuid;not null;index"`
-	ReviewerID uuid.UUID  `json:"reviewer_id" gorm:"type:uuid;not null;index"`
-	Reviewer   *User      `json:"reviewer,omitempty" gorm:"foreignKey:ReviewerID"`
-	Rating     int        `json:"rating" gorm:"not null"` // 1-5
-	Comment    string     `json:"comment"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
+	ID         uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ProductID  uuid.UUID `json:"product_id" gorm:"type:uuid;not null;index"`
+	Product    *Product  `json:"product,omitempty" gorm:"foreignKey:ProductID"`
+	PurchaseID uuid.UUID `json:"purchase_id" gorm:"type:uuid;not null;index"`
+	ReviewerID uuid.UUID `json:"reviewer_id" gorm:"type:uuid;not null;index"`
+	Reviewer   *User     `json:"reviewer,omitempty" gorm:"foreignKey:ReviewerID"`
+	Rating     int       `json:"rating" gorm:"not null"` // 1-5
+	Comment    string    `json:"comment"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type NotificationRepository interface {

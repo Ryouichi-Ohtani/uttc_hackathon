@@ -8,9 +8,9 @@ import (
 )
 
 type SocialUseCase struct {
-	followRepo       domain.FollowRepository
-	shareRepo        domain.ProductShareRepository
-	feedRepo         domain.UserFeedRepository
+	followRepo domain.FollowRepository
+	shareRepo  domain.ProductShareRepository
+	feedRepo   domain.UserFeedRepository
 }
 
 func NewSocialUseCase(

@@ -49,8 +49,8 @@ func (r *offerRepository) FindBySellerID(sellerID uuid.UUID) ([]*domain.Offer, e
 	var offers []*domain.Offer
 	err := r.db.Preload("Product").Preload("Product.Images").Preload("Buyer").
 		Preload("AINegotiationLogs", func(db *gorm.DB) *gorm.DB {
-		return db.Order("created_at ASC")
-	}).Joins("JOIN products ON products.id = offers.product_id").
+			return db.Order("created_at ASC")
+		}).Joins("JOIN products ON products.id = offers.product_id").
 		Where("products.seller_id = ?", sellerID).
 		Order("offers.created_at DESC").
 		Find(&offers).Error

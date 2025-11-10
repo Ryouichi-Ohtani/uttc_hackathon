@@ -37,7 +37,7 @@ func (uc *ChatHistoryUseCase) DeleteHistory(id uuid.UUID) error {
 }
 
 type CO2GoalUseCase struct {
-	goalRepo       domain.CO2GoalRepository
+	goalRepo domain.CO2GoalRepository
 }
 
 func NewCO2GoalUseCase(goalRepo domain.CO2GoalRepository) *CO2GoalUseCase {

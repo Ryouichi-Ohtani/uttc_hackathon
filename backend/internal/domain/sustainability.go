@@ -7,13 +7,13 @@ import (
 )
 
 type Achievement struct {
-	ID              uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	Name            string    `json:"name" gorm:"uniqueIndex;not null"`
-	Description     string    `json:"description"`
-	BadgeIconURL    string    `json:"badge_icon_url"`
-	RequirementType string    `json:"requirement_type" gorm:"not null"` // co2_saved, transaction_count, level
-	RequirementValue int      `json:"requirement_value" gorm:"not null"`
-	CreatedAt       time.Time `json:"created_at"`
+	ID               uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Name             string    `json:"name" gorm:"uniqueIndex;not null"`
+	Description      string    `json:"description"`
+	BadgeIconURL     string    `json:"badge_icon_url"`
+	RequirementType  string    `json:"requirement_type" gorm:"not null"` // co2_saved, transaction_count, level
+	RequirementValue int       `json:"requirement_value" gorm:"not null"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 
 type UserAchievement struct {
@@ -59,13 +59,13 @@ type SustainabilityRepository interface {
 }
 
 type DashboardResponse struct {
-	TotalCO2SavedKg     float64              `json:"total_co2_saved_kg"`
-	Level               int                  `json:"level"`
-	SustainabilityScore int                  `json:"sustainability_score"`
-	NextLevelThreshold  int                  `json:"next_level_threshold"`
-	Achievements        []*UserAchievement   `json:"achievements"`
-	RecentLogs          []*SustainabilityLog `json:"recent_logs"`
-	MonthlyStats        *MonthlyStats        `json:"monthly_stats"`
+	TotalCO2SavedKg     float64                `json:"total_co2_saved_kg"`
+	Level               int                    `json:"level"`
+	SustainabilityScore int                    `json:"sustainability_score"`
+	NextLevelThreshold  int                    `json:"next_level_threshold"`
+	Achievements        []*UserAchievement     `json:"achievements"`
+	RecentLogs          []*SustainabilityLog   `json:"recent_logs"`
+	MonthlyStats        *MonthlyStats          `json:"monthly_stats"`
 	Comparisons         *EnvironmentComparison `json:"comparisons"`
 }
 

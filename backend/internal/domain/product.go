@@ -10,11 +10,11 @@ type ProductStatus string
 type ProductCondition string
 
 const (
-	StatusDraft   ProductStatus = "draft"
-	StatusActive  ProductStatus = "active"
-	StatusSold    ProductStatus = "sold"
+	StatusDraft    ProductStatus = "draft"
+	StatusActive   ProductStatus = "active"
+	StatusSold     ProductStatus = "sold"
 	StatusReserved ProductStatus = "reserved"
-	StatusDeleted ProductStatus = "deleted"
+	StatusDeleted  ProductStatus = "deleted"
 
 	ConditionNew     ProductCondition = "new"
 	ConditionLikeNew ProductCondition = "like_new"
@@ -97,4 +97,3 @@ type CreateProductRequest struct {
 	WeightKg        float64          `form:"weight_kg"`
 	UseAIAssistance bool             `form:"use_ai_assistance"`
 }
-

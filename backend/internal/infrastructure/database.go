@@ -29,6 +29,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.Product{},
 		&domain.ProductImage{},
 		&domain.Purchase{},
+		&domain.ShippingLabel{},
 		&domain.Conversation{},
 		&domain.ConversationParticipant{},
 		&domain.Message{},
@@ -52,6 +53,9 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.AINegotiationSettings{},
 		&domain.AIShippingPreparation{},
 		&domain.AIAgentLog{},
+		// Auto-Purchase Models
+		&domain.AutoPurchaseWatch{},
+		&domain.AutoPurchaseLog{},
 	)
 }
 

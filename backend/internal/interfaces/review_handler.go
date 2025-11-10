@@ -82,7 +82,7 @@ func (h *ReviewHandler) GetProductReviews(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"reviews":       reviews,
+		"reviews":        reviews,
 		"average_rating": avgRating,
 	})
 }

@@ -11,7 +11,9 @@ import { ARTryOn } from '@/components/ar/ARTryOn'
 import { PricePrediction } from '@/components/analytics/PricePrediction'
 import { LiveAuction } from '@/components/auction/LiveAuction'
 import { OfferDialog } from '@/components/offers/OfferDialog'
+import { AutoPurchaseSetup } from '@/components/auto-purchase/AutoPurchaseSetup'
 import { useTranslation } from '@/i18n/useTranslation'
+import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 import { PRODUCT_DETAIL_PLACEHOLDER, THUMBNAIL_PLACEHOLDER } from '@/utils/placeholderImages'
 
@@ -19,6 +21,7 @@ export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t: _t } = useTranslation()
+  const { user } = useAuthStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -294,6 +297,17 @@ export const ProductDetail = () => {
         <div className="mt-8">
           <PricePrediction productId={product.id} currentPrice={product.price} />
         </div>
+
+        {/* AI Auto-Purchase Setup */}
+        {user && product.status === 'active' && user.id !== product.seller_id && (
+          <div className="mt-8">
+            <AutoPurchaseSetup
+              product={product}
+              user={user}
+              onSuccess={loadProduct}
+            />
+          </div>
+        )}
 
         {/* Live Auction (if product supports auction) */}
         {(product as any).auction_enabled && (

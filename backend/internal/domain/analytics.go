@@ -18,14 +18,14 @@ const (
 )
 
 type UserEvent struct {
-	ID         uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID     uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index"`
-	EventType  EventType `json:"event_type" gorm:"not null;index"`
-	ProductID  *uuid.UUID `json:"product_id" gorm:"type:uuid;index"`
-	Metadata   string    `json:"metadata" gorm:"type:jsonb"`
-	IPAddress  string    `json:"ip_address"`
-	UserAgent  string    `json:"user_agent"`
-	CreatedAt  time.Time `json:"created_at" gorm:"index"`
+	ID        uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	UserID    uuid.UUID  `json:"user_id" gorm:"type:uuid;not null;index"`
+	EventType EventType  `json:"event_type" gorm:"not null;index"`
+	ProductID *uuid.UUID `json:"product_id" gorm:"type:uuid;index"`
+	Metadata  string     `json:"metadata" gorm:"type:jsonb"`
+	IPAddress string     `json:"ip_address"`
+	UserAgent string     `json:"user_agent"`
+	CreatedAt time.Time  `json:"created_at" gorm:"index"`
 }
 
 type AnalyticsRepository interface {
@@ -45,12 +45,12 @@ type ProductAnalytics struct {
 }
 
 type UserBehaviorSummary struct {
-	TotalViews     int      `json:"total_views"`
-	TotalSearches  int      `json:"total_searches"`
-	TotalLikes     int      `json:"total_likes"`
-	TotalOffers    int      `json:"total_offers"`
+	TotalViews         int             `json:"total_views"`
+	TotalSearches      int             `json:"total_searches"`
+	TotalLikes         int             `json:"total_likes"`
+	TotalOffers        int             `json:"total_offers"`
 	FavoriteCategories []CategoryCount `json:"favorite_categories"`
-	RecentlyViewed []*Product `json:"recently_viewed"`
+	RecentlyViewed     []*Product      `json:"recently_viewed"`
 }
 
 type CategoryCount struct {

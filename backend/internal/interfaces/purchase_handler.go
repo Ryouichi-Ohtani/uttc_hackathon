@@ -89,3 +89,39 @@ func (h *PurchaseHandler) Complete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "purchase completed successfully"})
 }
+
+func (h *PurchaseHandler) GetShippingLabel(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+
+	purchaseID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid purchase id"})
+		return
+	}
+
+	label, err := h.purchaseUseCase.GetShippingLabel(purchaseID, userID.(uuid.UUID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, label)
+}
+
+func (h *PurchaseHandler) GenerateShippingLabel(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+
+	purchaseID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid purchase id"})
+		return
+	}
+
+	label, err := h.purchaseUseCase.GenerateShippingLabel(purchaseID, userID.(uuid.UUID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, label)
+}

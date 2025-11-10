@@ -1,7 +1,6 @@
 package infrastructure
 
 import (
-
 	"github.com/google/uuid"
 	"github.com/yourusername/ecomate/backend/internal/domain"
 	"gorm.io/gorm"

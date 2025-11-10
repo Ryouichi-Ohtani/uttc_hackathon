@@ -10,18 +10,18 @@ import (
 type AgentType string
 
 const (
-	AgentTypeListing     AgentType = "listing"      // 出品エージェント
-	AgentTypeNegotiation AgentType = "negotiation"  // 交渉エージェント
-	AgentTypeShipping    AgentType = "shipping"     // 配送エージェント
+	AgentTypeListing     AgentType = "listing"     // 出品エージェント
+	AgentTypeNegotiation AgentType = "negotiation" // 交渉エージェント
+	AgentTypeShipping    AgentType = "shipping"    // 配送エージェント
 )
 
 // Negotiation Mode - AI vs Manual
 type NegotiationMode string
 
 const (
-	NegotiationModeAI     NegotiationMode = "ai"      // AI自動交渉
-	NegotiationModeManual NegotiationMode = "manual"  // 手動交渉
-	NegotiationModeHybrid NegotiationMode = "hybrid"  // AIアシスト付き手動
+	NegotiationModeAI     NegotiationMode = "ai"     // AI自動交渉
+	NegotiationModeManual NegotiationMode = "manual" // 手動交渉
+	NegotiationModeHybrid NegotiationMode = "hybrid" // AIアシスト付き手動
 )
 
 // AI Listing Agent - 出品時のAI生成データ
@@ -35,7 +35,7 @@ type AIListingData struct {
 	GeneratedCategory    string    `json:"generated_category"`
 	GeneratedCondition   string    `json:"generated_condition"`
 	GeneratedPrice       int       `json:"generated_price"`
-	UserModifiedFields   string    `json:"user_modified_fields" gorm:"type:text"` // JSON array of field names
+	UserModifiedFields   string    `json:"user_modified_fields" gorm:"type:text"`  // JSON array of field names
 	ImageAnalysisResult  string    `json:"image_analysis_result" gorm:"type:text"` // AI画像分析結果
 	CreatedAt            time.Time `json:"created_at"`
 	UpdatedAt            time.Time `json:"updated_at"`
@@ -43,21 +43,21 @@ type AIListingData struct {
 
 // AI Negotiation Agent - オファー交渉のAI設定
 type AINegotiationSettings struct {
-	ID                    uuid.UUID       `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID             uuid.UUID       `json:"product_id" gorm:"type:uuid;not null;uniqueIndex"`
-	Product               *Product        `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	Mode                  NegotiationMode `json:"mode" gorm:"default:manual"` // ai, manual, hybrid
-	IsEnabled             bool            `json:"is_enabled" gorm:"default:false"`
-	MinAcceptablePrice    int             `json:"min_acceptable_price"` // AI交渉の最低価格
-	AutoAcceptThreshold   int             `json:"auto_accept_threshold"` // この価格以上は自動承認
-	AutoRejectThreshold   int             `json:"auto_reject_threshold"` // この価格未満は自動拒否
-	NegotiationStrategy   string          `json:"negotiation_strategy"` // aggressive, moderate, conservative
-	AIResponseTemplate    string          `json:"ai_response_template" gorm:"type:text"` // AIの返信テンプレート
-	TotalOffersProcessed  int             `json:"total_offers_processed" gorm:"default:0"`
-	AIAcceptedCount       int             `json:"ai_accepted_count" gorm:"default:0"`
-	AIRejectedCount       int             `json:"ai_rejected_count" gorm:"default:0"`
-	CreatedAt             time.Time       `json:"created_at"`
-	UpdatedAt             time.Time       `json:"updated_at"`
+	ID                   uuid.UUID       `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ProductID            uuid.UUID       `json:"product_id" gorm:"type:uuid;not null;uniqueIndex"`
+	Product              *Product        `json:"product,omitempty" gorm:"foreignKey:ProductID"`
+	Mode                 NegotiationMode `json:"mode" gorm:"default:manual"` // ai, manual, hybrid
+	IsEnabled            bool            `json:"is_enabled" gorm:"default:false"`
+	MinAcceptablePrice   int             `json:"min_acceptable_price"`                  // AI交渉の最低価格
+	AutoAcceptThreshold  int             `json:"auto_accept_threshold"`                 // この価格以上は自動承認
+	AutoRejectThreshold  int             `json:"auto_reject_threshold"`                 // この価格未満は自動拒否
+	NegotiationStrategy  string          `json:"negotiation_strategy"`                  // aggressive, moderate, conservative
+	AIResponseTemplate   string          `json:"ai_response_template" gorm:"type:text"` // AIの返信テンプレート
+	TotalOffersProcessed int             `json:"total_offers_processed" gorm:"default:0"`
+	AIAcceptedCount      int             `json:"ai_accepted_count" gorm:"default:0"`
+	AIRejectedCount      int             `json:"ai_rejected_count" gorm:"default:0"`
+	CreatedAt            time.Time       `json:"created_at"`
+	UpdatedAt            time.Time       `json:"updated_at"`
 }
 
 // AI Shipping Preparation - 配送準備のAI提案
@@ -66,11 +66,11 @@ type AIShippingPreparation struct {
 	PurchaseID           uuid.UUID  `json:"purchase_id" gorm:"type:uuid;not null;uniqueIndex"`
 	Purchase             *Purchase  `json:"purchase,omitempty" gorm:"foreignKey:PurchaseID"`
 	IsAIPrepared         bool       `json:"is_ai_prepared" gorm:"default:true"`
-	SuggestedCarrier     string     `json:"suggested_carrier"` // 推奨配送業者
-	SuggestedPackageSize string     `json:"suggested_package_size"` // 60サイズ、80サイズ等
+	SuggestedCarrier     string     `json:"suggested_carrier"`                         // 推奨配送業者
+	SuggestedPackageSize string     `json:"suggested_package_size"`                    // 60サイズ、80サイズ等
 	EstimatedWeight      float64    `json:"estimated_weight" gorm:"type:decimal(8,2)"` // kg
-	EstimatedCost        int        `json:"estimated_cost"` // 配送料
-	SuggestedLabel       string     `json:"suggested_label" gorm:"type:text"` // 送り状情報
+	EstimatedCost        int        `json:"estimated_cost"`                            // 配送料
+	SuggestedLabel       string     `json:"suggested_label" gorm:"type:text"`          // 送り状情報
 	TrackingNumber       string     `json:"tracking_number"`
 	ShippingInstructions string     `json:"shipping_instructions" gorm:"type:text"` // 梱包指示
 	UserApproved         bool       `json:"user_approved" gorm:"default:false"`
@@ -86,9 +86,9 @@ type AIAgentLog struct {
 	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	UserID      uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index"`
 	AgentType   AgentType `json:"agent_type" gorm:"not null;index"`
-	Action      string    `json:"action"` // generated, accepted, rejected, modified
+	Action      string    `json:"action"`                     // generated, accepted, rejected, modified
 	TargetID    uuid.UUID `json:"target_id" gorm:"type:uuid"` // ProductID, OfferID, PurchaseID
-	Details     string    `json:"details" gorm:"type:text"` // JSON details
+	Details     string    `json:"details" gorm:"type:text"`   // JSON details
 	Success     bool      `json:"success" gorm:"default:true"`
 	ErrorMsg    string    `json:"error_msg"`
 	ProcessTime int       `json:"process_time"` // milliseconds
@@ -122,46 +122,46 @@ type AIAgentRepository interface {
 
 // AI Agent Statistics
 type AIAgentStats struct {
-	TotalAIGenerations   int64   `json:"total_ai_generations"`
-	ListingsCreated      int64   `json:"listings_created"`
-	NegotiationsHandled  int64   `json:"negotiations_handled"`
-	ShipmentsPrepared    int64   `json:"shipments_prepared"`
-	AverageConfidence    float64 `json:"average_confidence"`
-	TimeSavedMinutes     int64   `json:"time_saved_minutes"`
-	AcceptanceRate       float64 `json:"acceptance_rate"`
+	TotalAIGenerations  int64   `json:"total_ai_generations"`
+	ListingsCreated     int64   `json:"listings_created"`
+	NegotiationsHandled int64   `json:"negotiations_handled"`
+	ShipmentsPrepared   int64   `json:"shipments_prepared"`
+	AverageConfidence   float64 `json:"average_confidence"`
+	TimeSavedMinutes    int64   `json:"time_saved_minutes"`
+	AcceptanceRate      float64 `json:"acceptance_rate"`
 }
 
 // Request/Response DTOs
 
 // AI Listing Generation Request
 type AIListingGenerationRequest struct {
-	ImageURLs    []string `json:"image_urls" binding:"required"`
-	UserHints    string   `json:"user_hints"` // Optional user hints
-	AutoPublish  bool     `json:"auto_publish"` // 承認なしで公開するか
+	ImageURLs   []string `json:"image_urls" binding:"required"`
+	UserHints   string   `json:"user_hints"`   // Optional user hints
+	AutoPublish bool     `json:"auto_publish"` // 承認なしで公開するか
 }
 
 // AI Listing Generation Response
 type AIListingGenerationResponse struct {
-	ProductID            uuid.UUID              `json:"product_id"`
-	ListingData          *AIListingData         `json:"listing_data"`
-	SuggestedProduct     *SuggestedProductData  `json:"suggested_product"`
-	ConfidenceBreakdown  map[string]float64     `json:"confidence_breakdown"`
-	RequiresApproval     bool                   `json:"requires_approval"`
+	ProductID           uuid.UUID             `json:"product_id"`
+	ListingData         *AIListingData        `json:"listing_data"`
+	SuggestedProduct    *SuggestedProductData `json:"suggested_product"`
+	ConfidenceBreakdown map[string]float64    `json:"confidence_breakdown"`
+	RequiresApproval    bool                  `json:"requires_approval"`
 }
 
 // Suggested Product Data for Approval Screen
 type SuggestedProductData struct {
-	Title                string           `json:"title"`
-	Description          string           `json:"description"`
-	Category             string           `json:"category"`
-	Condition            ProductCondition `json:"condition"`
-	Price                int              `json:"price"`
-	WeightKg             float64          `json:"weight_kg"`
-	DetectedBrand        string           `json:"detected_brand"`
-	DetectedModel        string           `json:"detected_model"`
-	KeyFeatures          []string         `json:"key_features"`
-	PricingRationale     string           `json:"pricing_rationale"`
-	CategoryRationale    string           `json:"category_rationale"`
+	Title             string           `json:"title"`
+	Description       string           `json:"description"`
+	Category          string           `json:"category"`
+	Condition         ProductCondition `json:"condition"`
+	Price             int              `json:"price"`
+	WeightKg          float64          `json:"weight_kg"`
+	DetectedBrand     string           `json:"detected_brand"`
+	DetectedModel     string           `json:"detected_model"`
+	KeyFeatures       []string         `json:"key_features"`
+	PricingRationale  string           `json:"pricing_rationale"`
+	CategoryRationale string           `json:"category_rationale"`
 }
 
 // AI Negotiation Toggle Request
@@ -181,8 +181,8 @@ type AIShippingPreparationRequest struct {
 
 // AI Shipping Approval Request
 type ApproveShippingRequest struct {
-	Approved        bool   `json:"approved" binding:"required"`
-	Carrier         string `json:"carrier"`
-	PackageSize     string `json:"package_size"`
-	Modifications   string `json:"modifications"` // JSON string
+	Approved      bool   `json:"approved" binding:"required"`
+	Carrier       string `json:"carrier"`
+	PackageSize   string `json:"package_size"`
+	Modifications string `json:"modifications"` // JSON string
 }

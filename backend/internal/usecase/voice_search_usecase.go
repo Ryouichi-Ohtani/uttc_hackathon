@@ -12,10 +12,10 @@ type VoiceSearchUseCase interface {
 }
 
 type VoiceSearchResult struct {
-	Transcript string             `json:"transcript"`
-	Products   []*domain.Product  `json:"products"`
-	Intent     string             `json:"intent"` // "search", "filter", "navigate"
-	Entities   map[string]string  `json:"entities"` // category, price_range, condition
+	Transcript string            `json:"transcript"`
+	Products   []*domain.Product `json:"products"`
+	Intent     string            `json:"intent"`   // "search", "filter", "navigate"
+	Entities   map[string]string `json:"entities"` // category, price_range, condition
 }
 
 type voiceSearchUseCase struct {

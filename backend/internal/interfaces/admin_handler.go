@@ -162,10 +162,10 @@ func (h *AdminHandler) GetAllUsers(c *gin.Context) {
 }
 
 type UpdateProductRequest struct {
-	Title       *string                 `json:"title"`
-	Description *string                 `json:"description"`
-	Price       *int                    `json:"price"`
-	Category    *string                 `json:"category"`
+	Title       *string                  `json:"title"`
+	Description *string                  `json:"description"`
+	Price       *int                     `json:"price"`
+	Category    *string                  `json:"category"`
 	Condition   *domain.ProductCondition `json:"condition"`
 	Status      *domain.ProductStatus    `json:"status"`
 }

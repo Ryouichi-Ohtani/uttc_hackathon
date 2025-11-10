@@ -11,9 +11,9 @@ import (
 )
 
 type ProductHandler struct {
-	productUseCase         *usecase.ProductUseCase
-	authUseCase            *usecase.AuthUseCase
-	sustainabilityRepo     domain.SustainabilityRepository
+	productUseCase     *usecase.ProductUseCase
+	authUseCase        *usecase.AuthUseCase
+	sustainabilityRepo domain.SustainabilityRepository
 }
 
 func NewProductHandler(productUseCase *usecase.ProductUseCase, authUseCase *usecase.AuthUseCase, sustainabilityRepo domain.SustainabilityRepository) *ProductHandler {

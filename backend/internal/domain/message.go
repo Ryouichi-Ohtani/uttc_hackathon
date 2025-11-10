@@ -7,13 +7,13 @@ import (
 )
 
 type Conversation struct {
-	ID            uuid.UUID                  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID     *uuid.UUID                 `json:"product_id" gorm:"type:uuid"`
-	Product       *Product                   `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	Participants  []ConversationParticipant  `json:"participants,omitempty" gorm:"foreignKey:ConversationID"`
-	Messages      []Message                  `json:"messages,omitempty" gorm:"foreignKey:ConversationID"`
-	LastMessageAt time.Time                  `json:"last_message_at"`
-	CreatedAt     time.Time                  `json:"created_at"`
+	ID            uuid.UUID                 `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ProductID     *uuid.UUID                `json:"product_id" gorm:"type:uuid"`
+	Product       *Product                  `json:"product,omitempty" gorm:"foreignKey:ProductID"`
+	Participants  []ConversationParticipant `json:"participants,omitempty" gorm:"foreignKey:ConversationID"`
+	Messages      []Message                 `json:"messages,omitempty" gorm:"foreignKey:ConversationID"`
+	LastMessageAt time.Time                 `json:"last_message_at"`
+	CreatedAt     time.Time                 `json:"created_at"`
 }
 
 type ConversationParticipant struct {
@@ -59,18 +59,18 @@ type SendMessageRequest struct {
 type WSMessageType string
 
 const (
-	WSMessageTypeAuth    WSMessageType = "auth"
-	WSMessageTypeMessage WSMessageType = "message"
-	WSMessageTypeTyping  WSMessageType = "typing"
-	WSMessageTypeRead    WSMessageType = "read"
-	WSMessageTypeSend    WSMessageType = "send_message"
+	WSMessageTypeAuth     WSMessageType = "auth"
+	WSMessageTypeMessage  WSMessageType = "message"
+	WSMessageTypeTyping   WSMessageType = "typing"
+	WSMessageTypeRead     WSMessageType = "read"
+	WSMessageTypeSend     WSMessageType = "send_message"
 	WSMessageTypeMarkRead WSMessageType = "mark_read"
 )
 
 type WSMessage struct {
-	Type WSMessageType `json:"type"`
-	Data interface{}   `json:"data,omitempty"`
-	Token string       `json:"token,omitempty"`
-	Content string     `json:"content,omitempty"`
-	MessageID *uuid.UUID `json:"message_id,omitempty"`
+	Type      WSMessageType `json:"type"`
+	Data      interface{}   `json:"data,omitempty"`
+	Token     string        `json:"token,omitempty"`
+	Content   string        `json:"content,omitempty"`
+	MessageID *uuid.UUID    `json:"message_id,omitempty"`
 }

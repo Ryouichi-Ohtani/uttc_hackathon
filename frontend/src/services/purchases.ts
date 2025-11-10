@@ -1,26 +1,21 @@
 import { api } from './api'
-
-export interface Purchase {
-  id: string
-  product_id: string
-  buyer_id: string
-  seller_id: string
-  price: number
-  co2_saved_kg: number
-  status: 'pending' | 'completed' | 'cancelled'
-  payment_method: string
-  shipping_address: string
-  completed_at?: string
-  created_at: string
-  product?: any
-  buyer?: any
-  seller?: any
-}
+import { Purchase, ShippingLabel } from '@/types'
 
 export interface CreatePurchaseRequest {
   product_id: string
   shipping_address: string
   payment_method: string
+  // Delivery information
+  delivery_date?: string
+  delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
+  use_registered_address?: boolean
+  recipient_name?: string
+  recipient_phone_number?: string
+  recipient_postal_code?: string
+  recipient_prefecture?: string
+  recipient_city?: string
+  recipient_address_line1?: string
+  recipient_address_line2?: string
 }
 
 export interface PurchaseListResponse {
@@ -58,6 +53,16 @@ class PurchaseService {
 
   async complete(id: string): Promise<void> {
     await api.patch(`/purchases/${id}/complete`)
+  }
+
+  async getShippingLabel(purchaseId: string): Promise<ShippingLabel> {
+    const response = await api.get(`/purchases/${purchaseId}/shipping-label`)
+    return response.data
+  }
+
+  async generateShippingLabel(purchaseId: string): Promise<ShippingLabel> {
+    const response = await api.post(`/purchases/${purchaseId}/shipping-label`)
+    return response.data
   }
 }
 
