@@ -12,9 +12,9 @@ import (
 )
 
 type AIClient struct {
-	client        pb.ProductAnalysisServiceClient
-	conn          *grpc.ClientConn
-	geminiClient  *GeminiClient
+	client       pb.ProductAnalysisServiceClient
+	conn         *grpc.ClientConn
+	geminiClient *GeminiClient
 }
 
 func NewAIClient(serverURL string) (*AIClient, error) {
@@ -47,30 +47,30 @@ func (c *AIClient) Close() error {
 }
 
 type ProductAnalysisRequest struct {
-	Images                [][]byte
-	Title                 string
+	Images                  [][]byte
+	Title                   string
 	UserProvidedDescription string
-	Category              string
+	Category                string
 }
 
 type ProductAnalysisResponse struct {
-	GeneratedDescription        string
-	SuggestedPrice              int
-	EstimatedWeightKg           float64
-	ManufacturerCountry         string
-	EstimatedManufacturingYear  int
-	CO2ImpactKg                 float64
-	IsInappropriate             bool
-	InappropriateReason         string
-	DetectedObjects             []string
+	GeneratedDescription       string
+	SuggestedPrice             int
+	EstimatedWeightKg          float64
+	ManufacturerCountry        string
+	EstimatedManufacturingYear int
+	CO2ImpactKg                float64
+	IsInappropriate            bool
+	InappropriateReason        string
+	DetectedObjects            []string
 }
 
 func (c *AIClient) AnalyzeProduct(ctx context.Context, req *ProductAnalysisRequest) (*ProductAnalysisResponse, error) {
 	resp, err := c.client.AnalyzeProduct(ctx, &pb.AnalyzeProductRequest{
-		Images:                 req.Images,
-		Title:                  req.Title,
+		Images:                  req.Images,
+		Title:                   req.Title,
 		UserProvidedDescription: req.UserProvidedDescription,
-		Category:               req.Category,
+		Category:                req.Category,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to analyze product: %w", err)
@@ -891,12 +891,12 @@ func (c *AIClient) AnalyzeMarketPrice(
 
 // MarketPriceAnalysisResult represents the result of market price analysis
 type MarketPriceAnalysisResult struct {
-	RecommendedPrice  int                      `json:"recommended_price"`
-	MinPrice          int                      `json:"min_price"`
-	MaxPrice          int                      `json:"max_price"`
-	MarketData        []MarketDataSourceResult `json:"market_data"`
-	Analysis          string                   `json:"analysis"`
-	ConfidenceLevel   string                   `json:"confidence_level"`
+	RecommendedPrice int                      `json:"recommended_price"`
+	MinPrice         int                      `json:"min_price"`
+	MaxPrice         int                      `json:"max_price"`
+	MarketData       []MarketDataSourceResult `json:"market_data"`
+	Analysis         string                   `json:"analysis"`
+	ConfidenceLevel  string                   `json:"confidence_level"`
 }
 
 // MarketDataSourceResult represents a single market data point

@@ -174,13 +174,7 @@ export const AutoPurchaseWatches = () => {
                         <span className="text-gray-600">最大購入価格:</span>{' '}
                         <span className="font-bold text-purple-600">¥{watch.max_price.toLocaleString()}</span>
                       </div>
-                      <div>
-                        <span className="text-gray-600">配送希望日:</span>{' '}
-                        {watch.delivery_date
-                          ? new Date(watch.delivery_date).toLocaleDateString('ja-JP')
-                          : '指定なし'}
-                      </div>
-                      <div>
+                      <div className="col-span-2">
                         <span className="text-gray-600">配送時間帯:</span>{' '}
                         {getTimeSlotLabel(watch.delivery_time_slot)}
                       </div>

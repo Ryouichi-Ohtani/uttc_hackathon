@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"math"
-	
 
 	"github.com/google/uuid"
 	"github.com/yourusername/ecomate/backend/internal/domain"
@@ -33,13 +32,13 @@ type RevenuePrediction struct {
 }
 
 type MarketTrend struct {
-	Category          string    `json:"category"`
-	AveragePrice      int       `json:"average_price"`
-	MedianPrice       int       `json:"median_price"`
-	PriceGrowthRate   float64   `json:"price_growth_rate"`
-	DemandScore       float64   `json:"demand_score"`
-	CompetitionLevel  string    `json:"competition_level"`
-	TrendDirection    string    `json:"trend_direction"` // "up", "down", "stable"
+	Category         string  `json:"category"`
+	AveragePrice     int     `json:"average_price"`
+	MedianPrice      int     `json:"median_price"`
+	PriceGrowthRate  float64 `json:"price_growth_rate"`
+	DemandScore      float64 `json:"demand_score"`
+	CompetitionLevel string  `json:"competition_level"`
+	TrendDirection   string  `json:"trend_direction"` // "up", "down", "stable"
 }
 
 type salesPredictionUseCase struct {

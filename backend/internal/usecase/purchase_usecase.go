@@ -199,15 +199,15 @@ func (u *purchaseUseCase) GenerateShippingLabel(purchaseID uuid.UUID, userID uui
 
 	// Create shipping label
 	label := &domain.ShippingLabel{
-		PurchaseID:            purchaseID,
+		PurchaseID: purchaseID,
 		// Sender (Seller) information
-		SenderName:            seller.DisplayName,
-		SenderPostalCode:      seller.PostalCode,
-		SenderPrefecture:      seller.Prefecture,
-		SenderCity:            seller.City,
-		SenderAddressLine1:    seller.AddressLine1,
-		SenderAddressLine2:    seller.AddressLine2,
-		SenderPhoneNumber:     seller.PhoneNumber,
+		SenderName:         seller.DisplayName,
+		SenderPostalCode:   seller.PostalCode,
+		SenderPrefecture:   seller.Prefecture,
+		SenderCity:         seller.City,
+		SenderAddressLine1: seller.AddressLine1,
+		SenderAddressLine2: seller.AddressLine2,
+		SenderPhoneNumber:  seller.PhoneNumber,
 		// Recipient (Buyer) information
 		RecipientName:         purchase.RecipientName,
 		RecipientPostalCode:   purchase.RecipientPostalCode,

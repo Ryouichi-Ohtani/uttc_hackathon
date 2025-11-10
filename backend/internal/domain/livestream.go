@@ -13,7 +13,7 @@ type LiveStream struct {
 	SellerID    uuid.UUID      `gorm:"type:uuid;not null;index" json:"seller_id"`
 	Title       string         `gorm:"not null" json:"title"`
 	Description string         `gorm:"type:text" json:"description"`
-	ProductIDs  []uuid.UUID    `gorm:"type:uuid[];not null" json:"product_ids"` // Products featured in stream
+	ProductIDs  []uuid.UUID    `gorm:"type:uuid[];not null" json:"product_ids"`    // Products featured in stream
 	Status      string         `gorm:"not null;default:'scheduled'" json:"status"` // scheduled, live, ended
 	StreamURL   string         `json:"stream_url"`
 	ViewerCount int            `gorm:"default:0" json:"viewer_count"`
@@ -25,7 +25,7 @@ type LiveStream struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 
 	// Relations
-	Seller   *User      `gorm:"foreignKey:SellerID" json:"seller,omitempty"`
+	Seller   *User            `gorm:"foreignKey:SellerID" json:"seller,omitempty"`
 	Comments []*StreamComment `gorm:"foreignKey:StreamID" json:"comments,omitempty"`
 }
 

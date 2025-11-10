@@ -12,8 +12,8 @@ import (
 )
 
 type ChatbotHandler struct {
-	aiClient      *infrastructure.AIClient
-	productRepo   domain.ProductRepository
+	aiClient    *infrastructure.AIClient
+	productRepo domain.ProductRepository
 }
 
 func NewChatbotHandler(aiClient *infrastructure.AIClient, productRepo domain.ProductRepository) *ChatbotHandler {
@@ -90,14 +90,14 @@ func (h *ChatbotHandler) buildProductContext(products []*domain.Product) string 
 	}
 
 	type ProductInfo struct {
-		ID          string `json:"id"`
-		Title       string `json:"title"`
-		Description string `json:"description"`
-		Price       int    `json:"price"`
-		Category    string `json:"category"`
-		Condition   string `json:"condition"`
+		ID          string  `json:"id"`
+		Title       string  `json:"title"`
+		Description string  `json:"description"`
+		Price       int     `json:"price"`
+		Category    string  `json:"category"`
+		Condition   string  `json:"condition"`
 		CO2Impact   float64 `json:"co2_impact_kg"`
-		ImageURL    string `json:"image_url"`
+		ImageURL    string  `json:"image_url"`
 	}
 
 	productList := make([]ProductInfo, 0, len(products))

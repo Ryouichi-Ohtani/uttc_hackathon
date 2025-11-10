@@ -247,11 +247,11 @@ export interface PaymentAuthorizationRequest {
 }
 
 export interface PaymentAuthorizationResponse {
+  authorized: boolean
   payment_method_id: string
-  payment_auth_token: string
-  authorized_amount: number
+  auth_token: string
   expires_at: string
-  last4: string
+  message: string
 }
 
 export interface AutoPurchaseWatch {
@@ -264,8 +264,7 @@ export interface AutoPurchaseWatch {
   payment_authorized: boolean
   payment_method_id: string
   payment_auth_token: string
-  authorized_amount: number
-  delivery_date?: string
+  use_registered_address?: boolean
   delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
   shipping_address: string
   recipient_name: string
@@ -275,6 +274,7 @@ export interface AutoPurchaseWatch {
   recipient_city: string
   recipient_address_line1: string
   recipient_address_line2?: string
+  last_checked_at?: string
   expires_at: string
   executed_at?: string
   purchase_id?: string
@@ -287,8 +287,7 @@ export interface CreateAutoPurchaseWatchRequest {
   max_price: number
   payment_method_id: string
   payment_auth_token: string
-  authorized_amount: number
-  delivery_date?: string
+  use_registered_address?: boolean
   delivery_time_slot?: 'morning' | 'afternoon' | 'evening' | 'anytime'
   shipping_address: string
   recipient_name: string
@@ -298,4 +297,5 @@ export interface CreateAutoPurchaseWatchRequest {
   recipient_city: string
   recipient_address_line1: string
   recipient_address_line2?: string
+  expires_in_days?: number
 }

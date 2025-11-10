@@ -32,14 +32,14 @@ type Auction struct {
 }
 
 type Bid struct {
-	ID         uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	AuctionID  uuid.UUID  `json:"auction_id" gorm:"type:uuid;not null;index"`
-	Auction    *Auction   `json:"auction,omitempty" gorm:"foreignKey:AuctionID"`
-	BidderID   uuid.UUID  `json:"bidder_id" gorm:"type:uuid;not null;index"`
-	Bidder     *User      `json:"bidder,omitempty" gorm:"foreignKey:BidderID"`
-	Amount     int        `json:"amount" gorm:"not null"`
-	IsWinning  bool       `json:"is_winning" gorm:"default:false"`
-	CreatedAt  time.Time  `json:"created_at"`
+	ID        uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	AuctionID uuid.UUID `json:"auction_id" gorm:"type:uuid;not null;index"`
+	Auction   *Auction  `json:"auction,omitempty" gorm:"foreignKey:AuctionID"`
+	BidderID  uuid.UUID `json:"bidder_id" gorm:"type:uuid;not null;index"`
+	Bidder    *User     `json:"bidder,omitempty" gorm:"foreignKey:BidderID"`
+	Amount    int       `json:"amount" gorm:"not null"`
+	IsWinning bool      `json:"is_winning" gorm:"default:false"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type AuctionRepository interface {

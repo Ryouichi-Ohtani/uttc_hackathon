@@ -22,13 +22,13 @@ type AutoPurchaseUseCase interface {
 }
 
 type autoPurchaseUseCase struct {
-	autoPurchaseRepo domain.AutoPurchaseWatchRepository
+	autoPurchaseRepo    domain.AutoPurchaseWatchRepository
 	autoPurchaseLogRepo domain.AutoPurchaseLogRepository
-	productRepo      domain.ProductRepository
-	userRepo         domain.UserRepository
-	purchaseRepo     domain.PurchaseRepository
-	shippingLabelRepo domain.ShippingLabelRepository
-	notificationRepo domain.NotificationRepository
+	productRepo         domain.ProductRepository
+	userRepo            domain.UserRepository
+	purchaseRepo        domain.PurchaseRepository
+	shippingLabelRepo   domain.ShippingLabelRepository
+	notificationRepo    domain.NotificationRepository
 }
 
 func NewAutoPurchaseUseCase(
@@ -318,23 +318,23 @@ func (u *autoPurchaseUseCase) ExecuteAutoPurchase(watchID uuid.UUID) error {
 
 	// Create purchase
 	purchase := &domain.Purchase{
-		ProductID:              product.ID,
-		BuyerID:                watch.UserID,
-		SellerID:               product.SellerID,
-		Price:                  product.Price,
-		Status:                 domain.PurchaseStatusPending,
-		PaymentMethod:          watch.PaymentMethodID,
-		ShippingAddress:        watch.ShippingAddress,
-		UseRegisteredAddress:   watch.UseRegisteredAddress,
-		RecipientName:          watch.RecipientName,
-		RecipientPhoneNumber:   watch.RecipientPhoneNumber,
-		RecipientPostalCode:    watch.RecipientPostalCode,
-		RecipientPrefecture:    watch.RecipientPrefecture,
-		RecipientCity:          watch.RecipientCity,
-		RecipientAddressLine1:  watch.RecipientAddressLine1,
-		RecipientAddressLine2:  watch.RecipientAddressLine2,
-		DeliveryTimeSlot:       watch.DeliveryTimeSlot,
-		CreatedAt:              time.Now(),
+		ProductID:             product.ID,
+		BuyerID:               watch.UserID,
+		SellerID:              product.SellerID,
+		Price:                 product.Price,
+		Status:                domain.PurchaseStatusPending,
+		PaymentMethod:         watch.PaymentMethodID,
+		ShippingAddress:       watch.ShippingAddress,
+		UseRegisteredAddress:  watch.UseRegisteredAddress,
+		RecipientName:         watch.RecipientName,
+		RecipientPhoneNumber:  watch.RecipientPhoneNumber,
+		RecipientPostalCode:   watch.RecipientPostalCode,
+		RecipientPrefecture:   watch.RecipientPrefecture,
+		RecipientCity:         watch.RecipientCity,
+		RecipientAddressLine1: watch.RecipientAddressLine1,
+		RecipientAddressLine2: watch.RecipientAddressLine2,
+		DeliveryTimeSlot:      watch.DeliveryTimeSlot,
+		CreatedAt:             time.Now(),
 	}
 
 	if err := u.purchaseRepo.Create(purchase); err != nil {

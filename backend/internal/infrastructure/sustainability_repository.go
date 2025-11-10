@@ -75,7 +75,7 @@ func (r *sustainabilityRepository) CheckAndAwardAchievements(userID uuid.UUID) e
 				if int(transactionCount) >= achievement.RequirementValue {
 					shouldAward = true
 				}
-			// Removed CO2 and level based achievements
+				// Removed CO2 and level based achievements
 			}
 
 			if shouldAward {

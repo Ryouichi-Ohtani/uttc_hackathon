@@ -95,11 +95,11 @@ func (s *AnalyticsService) AnalyzeUserBehavior(userID uuid.UUID) (*UserBehaviorA
 	}
 
 	analytics := &UserBehaviorAnalytics{
-		UserID:             userID,
-		ViewedProducts:     45,
-		FavoriteProducts:   12,
-		PurchasedProducts:  3,
-		AverageSessionTime: 15.5,
+		UserID:              userID,
+		ViewedProducts:      45,
+		FavoriteProducts:    12,
+		PurchasedProducts:   3,
+		AverageSessionTime:  15.5,
 		CategoryPreferences: categoryPreferences,
 		PriceRange: PriceRangePreference{
 			Min:     5000,
@@ -205,15 +205,15 @@ func (s *AnalyticsService) getSeasonalBoost(category string, date time.Time) flo
 
 	seasonalFactors := map[string]map[time.Month]float64{
 		"electronics": {
-			time.November:  0.15,
-			time.December:  0.25,
-			time.January:   -0.10,
+			time.November: 0.15,
+			time.December: 0.25,
+			time.January:  -0.10,
 		},
 		"clothing": {
-			time.March: 0.10,
-			time.April: 0.15,
+			time.March:     0.10,
+			time.April:     0.15,
 			time.September: 0.12,
-			time.October: 0.18,
+			time.October:   0.18,
 		},
 		"sports": {
 			time.April: 0.20,

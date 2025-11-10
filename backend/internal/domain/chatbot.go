@@ -27,16 +27,16 @@ type ChatHistoryRepository interface {
 
 // CO2Goal represents a user's CO2 reduction goal
 type CO2Goal struct {
-	ID             uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	UserID         uuid.UUID      `gorm:"type:uuid;not null;unique;index" json:"user_id"`
-	TargetKG       float64        `gorm:"not null" json:"target_kg"`
-	CurrentKG      float64        `gorm:"default:0" json:"current_kg"`
-	TargetDate     time.Time      `gorm:"not null" json:"target_date"`
-	StartDate      time.Time      `gorm:"not null" json:"start_date"`
-	Status         string         `gorm:"not null;default:'active'" json:"status"` // active, completed, expired
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
-	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
+	ID         uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	UserID     uuid.UUID      `gorm:"type:uuid;not null;unique;index" json:"user_id"`
+	TargetKG   float64        `gorm:"not null" json:"target_kg"`
+	CurrentKG  float64        `gorm:"default:0" json:"current_kg"`
+	TargetDate time.Time      `gorm:"not null" json:"target_date"`
+	StartDate  time.Time      `gorm:"not null" json:"start_date"`
+	Status     string         `gorm:"not null;default:'active'" json:"status"` // active, completed, expired
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 type CO2GoalRepository interface {
@@ -51,19 +51,19 @@ type ShippingTracking struct {
 	ID               uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	PurchaseID       uuid.UUID      `gorm:"type:uuid;not null;unique;index" json:"purchase_id"`
 	TrackingNumber   string         `gorm:"not null" json:"tracking_number"`
-	Carrier          string         `gorm:"not null" json:"carrier"` // yamato, sagawa, yupack, etc.
+	Carrier          string         `gorm:"not null" json:"carrier"`                  // yamato, sagawa, yupack, etc.
 	Status           string         `gorm:"not null;default:'pending'" json:"status"` // pending, shipped, in_transit, delivered
 	ShippedAt        *time.Time     `json:"shipped_at"`
 	DeliveredAt      *time.Time     `json:"delivered_at"`
 	EstimatedArrival *time.Time     `json:"estimated_arrival"`
-	ShippingMethod   string         `json:"shipping_method"` // standard, eco, express
+	ShippingMethod   string         `json:"shipping_method"`            // standard, eco, express
 	CO2Saved         float64        `gorm:"default:0" json:"co2_saved"` // CO2 saved by eco shipping
 	CreatedAt        time.Time      `json:"created_at"`
 	UpdatedAt        time.Time      `json:"updated_at"`
 	DeletedAt        gorm.DeletedAt `gorm:"index" json:"-"`
 
 	// Relations
-	Purchase         *Purchase      `gorm:"foreignKey:PurchaseID" json:"purchase,omitempty"`
+	Purchase *Purchase `gorm:"foreignKey:PurchaseID" json:"purchase,omitempty"`
 }
 
 type ShippingTrackingRepository interface {

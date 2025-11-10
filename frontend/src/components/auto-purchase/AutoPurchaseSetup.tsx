@@ -20,7 +20,6 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
   const [loading, setLoading] = useState(false)
 
   const [maxPrice, setMaxPrice] = useState(product.price)
-  const [deliveryDate, setDeliveryDate] = useState('')
   const [deliveryTimeSlot, setDeliveryTimeSlot] = useState<'morning' | 'afternoon' | 'evening' | 'anytime'>('anytime')
 
   const [addressData, setAddressData] = useState({
@@ -36,7 +35,6 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
   const [paymentAuth, setPaymentAuth] = useState<{
     payment_method_id: string
     payment_auth_token: string
-    authorized_amount: number
   } | null>(null)
 
   const hasAddress = Boolean(
@@ -63,10 +61,14 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
   const handlePaymentAuthorization = async (request: PaymentAuthorizationRequest) => {
     try {
       const response = await autoPurchaseService.authorizePayment(request)
+
+      if (!response.authorized) {
+        throw new Error(response.message || '決済認証に失敗しました')
+      }
+
       setPaymentAuth({
         payment_method_id: response.payment_method_id,
-        payment_auth_token: response.payment_auth_token,
-        authorized_amount: response.authorized_amount,
+        payment_auth_token: response.auth_token,
       })
       setShowPaymentDialog(false)
       toast.success('決済認証が完了しました')
@@ -101,8 +103,7 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
         max_price: maxPrice,
         payment_method_id: paymentAuth.payment_method_id,
         payment_auth_token: paymentAuth.payment_auth_token,
-        authorized_amount: paymentAuth.authorized_amount,
-        delivery_date: deliveryDate || undefined,
+        use_registered_address: hasAddress,
         delivery_time_slot: deliveryTimeSlot,
         shipping_address: shippingAddress,
         recipient_name: addressData.recipient_name,
@@ -122,12 +123,6 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
     } finally {
       setLoading(false)
     }
-  }
-
-  const getTomorrowDate = () => {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    return tomorrow.toISOString().split('T')[0]
   }
 
   if (!isExpanded) {
@@ -185,20 +180,6 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
             <p className="text-xs text-gray-500 mt-1">
               この価格以下になったら自動購入されます
             </p>
-          </div>
-
-          {/* Delivery Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              配送希望日 (任意)
-            </label>
-            <input
-              type="date"
-              value={deliveryDate}
-              onChange={(e) => setDeliveryDate(e.target.value)}
-              min={getTomorrowDate()}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
           </div>
 
           {/* Delivery Time Slot */}
@@ -275,7 +256,7 @@ export const AutoPurchaseSetup = ({ product, user, onSuccess }: AutoPurchaseSetu
             {paymentAuth ? (
               <div className="bg-green-50 border border-green-200 p-3 rounded-md">
                 <p className="text-sm text-green-800">
-                  ✓ 決済認証完了 (最大金額: ¥{paymentAuth.authorized_amount.toLocaleString()})
+                  ✓ 決済認証完了
                 </p>
               </div>
             ) : (

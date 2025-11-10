@@ -61,10 +61,10 @@ func (uc *ProductUseCase) CreateProduct(
 	// Use AI assistance if requested
 	if req.UseAIAssistance && uc.aiClient != nil {
 		analysisReq := &infrastructure.ProductAnalysisRequest{
-			Images:                imageBytes,
-			Title:                 req.Title,
+			Images:                  imageBytes,
+			Title:                   req.Title,
 			UserProvidedDescription: req.Description,
-			Category:              req.Category,
+			Category:                req.Category,
 		}
 
 		analysisResp, err := uc.aiClient.AnalyzeProduct(ctx, analysisReq)

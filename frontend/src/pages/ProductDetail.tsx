@@ -13,7 +13,7 @@ import { LiveAuction } from '@/components/auction/LiveAuction'
 import { OfferDialog } from '@/components/offers/OfferDialog'
 import { AutoPurchaseSetup } from '@/components/auto-purchase/AutoPurchaseSetup'
 import { useTranslation } from '@/i18n/useTranslation'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 import { PRODUCT_DETAIL_PLACEHOLDER, THUMBNAIL_PLACEHOLDER } from '@/utils/placeholderImages'
 

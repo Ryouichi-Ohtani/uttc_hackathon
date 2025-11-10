@@ -127,13 +127,13 @@ func TestEstimateShippingInfo(t *testing.T) {
 	uc := &AIAgentUseCase{}
 
 	tests := []struct {
-		name           string
-		product        *domain.Product
-		purchase       *domain.Purchase
-		expectedSize   string
+		name            string
+		product         *domain.Product
+		purchase        *domain.Purchase
+		expectedSize    string
 		expectedCarrier string
-		minCost        int
-		maxCost        int
+		minCost         int
+		maxCost         int
 	}{
 		{
 			name: "軽量商品（東京）",

@@ -15,24 +15,24 @@ const (
 )
 
 type User struct {
-	ID                 uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	Email              string     `json:"email" gorm:"uniqueIndex;not null"`
-	Username           string     `json:"username" gorm:"uniqueIndex;not null"`
-	PasswordHash       string     `json:"-" gorm:"not null"`
-	DisplayName        string     `json:"display_name"`
-	AvatarURL          string     `json:"avatar_url"`
-	Bio                string     `json:"bio"`
-	Role               UserRole   `json:"role" gorm:"default:'user'"`
+	ID           uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Email        string    `json:"email" gorm:"uniqueIndex;not null"`
+	Username     string    `json:"username" gorm:"uniqueIndex;not null"`
+	PasswordHash string    `json:"-" gorm:"not null"`
+	DisplayName  string    `json:"display_name"`
+	AvatarURL    string    `json:"avatar_url"`
+	Bio          string    `json:"bio"`
+	Role         UserRole  `json:"role" gorm:"default:'user'"`
 	// Address information for shipping
-	PostalCode         string     `json:"postal_code"`
-	Prefecture         string     `json:"prefecture"`
-	City               string     `json:"city"`
-	AddressLine1       string     `json:"address_line1"`
-	AddressLine2       string     `json:"address_line2"`
-	PhoneNumber        string     `json:"phone_number"`
-	CreatedAt          time.Time  `json:"created_at"`
-	UpdatedAt          time.Time  `json:"updated_at"`
-	DeletedAt          *time.Time `json:"-" gorm:"index"`
+	PostalCode   string     `json:"postal_code"`
+	Prefecture   string     `json:"prefecture"`
+	City         string     `json:"city"`
+	AddressLine1 string     `json:"address_line1"`
+	AddressLine2 string     `json:"address_line2"`
+	PhoneNumber  string     `json:"phone_number"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	DeletedAt    *time.Time `json:"-" gorm:"index"`
 }
 
 func (u *User) HasRole(role UserRole) bool {
