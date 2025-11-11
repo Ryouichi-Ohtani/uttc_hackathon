@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { NotificationBadge } from '@/components/notifications/NotificationBadge'
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
-import { useTranslation } from '@/i18n'
+import { useTranslation } from '@/i18n/useTranslation'
 import { useState, useEffect } from 'react'
 import {
   HomeIcon,
