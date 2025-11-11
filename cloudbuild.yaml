@@ -1,0 +1,44 @@
+steps:
+  # Build the backend container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/ecomate-backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/ecomate-backend:latest'
+      - '-f'
+      - 'backend/Dockerfile'
+      - '.'
+    id: 'build-backend'
+
+  # Push the backend container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/ecomate-backend:$COMMIT_SHA'
+    id: 'push-backend'
+
+  # Deploy backend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ecomate-backend'
+      - '--image=gcr.io/$PROJECT_ID/ecomate-backend:$COMMIT_SHA'
+      - '--region=asia-northeast1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=DATABASE_HOST=${_DATABASE_HOST},DATABASE_PORT=${_DATABASE_PORT},DATABASE_USER=${_DATABASE_USER},DATABASE_NAME=${_DATABASE_NAME},JWT_SECRET=${_JWT_SECRET},GEMINI_API_KEY=${_GEMINI_API_KEY}'
+      - '--set-secrets=DATABASE_PASSWORD=ecomate-db-password:latest'
+    id: 'deploy-backend'
+
+images:
+  - 'gcr.io/$PROJECT_ID/ecomate-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/ecomate-backend:latest'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  
+timeout: 1200s
