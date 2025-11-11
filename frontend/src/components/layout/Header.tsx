@@ -1,6 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { NotificationBadge } from '@/components/notifications/NotificationBadge'
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
+import { useTranslation } from '@/i18n'
 import { useState, useEffect } from 'react'
 import {
   HomeIcon,
@@ -21,6 +23,7 @@ export const Header = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -60,20 +63,20 @@ export const Header = () => {
   }
 
   const baseMenuItems = [
-    { path: '/', label: 'ホーム', icon: HomeIcon },
-    { path: '/create', label: '出品', icon: PlusCircleIcon },
-    { path: '/ai/create', label: 'AI出品', icon: SparklesIcon, aiFeature: true },
-    { path: '/purchases', label: '購入履歴', icon: ShoppingBagIcon },
-    { path: '/messages', label: 'メッセージ', icon: ChatBubbleLeftRightIcon },
-    { path: '/favorites', label: 'お気に入り', icon: HeartIcon },
-    { path: '/profile', label: 'マイページ', icon: UserCircleIcon },
+    { path: '/', label: t('nav.home'), icon: HomeIcon },
+    { path: '/create', label: t('nav.create'), icon: PlusCircleIcon },
+    { path: '/ai/create', label: t('nav.aiCreate'), icon: SparklesIcon, aiFeature: true },
+    { path: '/purchases', label: t('nav.purchases'), icon: ShoppingBagIcon },
+    { path: '/messages', label: t('nav.messages'), icon: ChatBubbleLeftRightIcon },
+    { path: '/favorites', label: t('nav.favorites'), icon: HeartIcon },
+    { path: '/profile', label: t('nav.profile'), icon: UserCircleIcon },
   ]
 
   // Add admin link for admin users
   const menuItems = user?.role === 'admin'
     ? [
         ...baseMenuItems,
-        { path: '/admin', label: '管理者', icon: ShieldCheckIcon, adminFeature: true }
+        { path: '/admin', label: t('nav.admin'), icon: ShieldCheckIcon, adminFeature: true }
       ]
     : baseMenuItems
 
@@ -150,6 +153,9 @@ export const Header = () => {
 
             {/* Right Section */}
             <div className="flex items-center gap-2">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
