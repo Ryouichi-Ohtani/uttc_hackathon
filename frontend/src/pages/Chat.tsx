@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { messageService, Message } from '@/services/messages'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
@@ -9,7 +9,6 @@ import toast from 'react-hot-toast'
 
 export const Chat = () => {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { user, token } = useAuthStore()
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')

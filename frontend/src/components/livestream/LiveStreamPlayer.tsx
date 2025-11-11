@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { Card } from '@/components/common/Card'
 import { Button } from '@/components/common/Button'
 
 interface LiveStreamPlayerProps {
@@ -18,7 +17,7 @@ interface Comment {
 }
 
 export const LiveStreamPlayer = ({
-  streamId,
+  streamId: _streamId,
   title,
   sellerName,
   viewerCount,
@@ -26,7 +25,6 @@ export const LiveStreamPlayer = ({
 }: LiveStreamPlayerProps) => {
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')
-  const [isLive] = useState(true)
   const commentsEndRef = useRef<HTMLDivElement>(null)
 
   // Simulate live comments

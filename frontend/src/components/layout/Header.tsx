@@ -19,6 +19,14 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/24/outline'
 
+interface MenuItem {
+  path: string
+  label: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  aiFeature?: boolean
+  adminFeature?: boolean
+}
+
 export const Header = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -62,7 +70,7 @@ export const Header = () => {
     }
   }
 
-  const baseMenuItems = [
+  const baseMenuItems: MenuItem[] = [
     { path: '/', label: t('nav.home'), icon: HomeIcon },
     { path: '/create', label: t('nav.create'), icon: PlusCircleIcon },
     { path: '/ai/create', label: t('nav.aiCreate'), icon: SparklesIcon, aiFeature: true },
@@ -73,7 +81,7 @@ export const Header = () => {
   ]
 
   // Add admin link for admin users
-  const menuItems = user?.role === 'admin'
+  const menuItems: MenuItem[] = user?.role === 'admin'
     ? [
         ...baseMenuItems,
         { path: '/admin', label: t('nav.admin'), icon: ShieldCheckIcon, adminFeature: true }
@@ -132,7 +140,7 @@ export const Header = () => {
                           ? 'text-primary-600 bg-primary-50'
                           : item.aiFeature
                           ? 'text-white bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-mercari'
-                          : (item as any).adminFeature
+                          : item.adminFeature
                           ? 'text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-mercari'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }
@@ -142,7 +150,7 @@ export const Header = () => {
                         <Icon className="w-4 h-4" />
                         {item.label}
                       </span>
-                      {active && !item.aiFeature && !(item as any).adminFeature && (
+                      {active && !item.aiFeature && !item.adminFeature && (
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full" />
                       )}
                     </button>
@@ -240,7 +248,7 @@ export const Header = () => {
                           ? 'text-primary-600 bg-primary-50'
                           : item.aiFeature
                           ? 'text-white bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-mercari'
-                          : (item as any).adminFeature
+                          : item.adminFeature
                           ? 'text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-mercari'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }

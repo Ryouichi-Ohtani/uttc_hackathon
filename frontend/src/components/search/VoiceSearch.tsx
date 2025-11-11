@@ -12,7 +12,7 @@ export const VoiceSearch: React.FC<VoiceSearchProps> = ({
   onSearch,
   onTranscript,
   onIntentDetected,
-  placeholder = '音声で検索...',
+  placeholder: _placeholder = '音声で検索...',
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -98,13 +98,6 @@ export const VoiceSearch: React.FC<VoiceSearchProps> = ({
     if (recognition) {
       recognition.stop();
       setIsListening(false);
-    }
-  };
-
-  const handleManualSearch = () => {
-    if (transcript) {
-      if (onSearch) onSearch(transcript);
-      if (onTranscript) onTranscript(transcript);
     }
   };
 

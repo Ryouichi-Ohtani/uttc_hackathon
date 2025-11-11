@@ -8,7 +8,7 @@ interface Product3DViewerProps {
   imageUrl?: string
 }
 
-export const Product3DViewer = ({ productId, productName, imageUrl }: Product3DViewerProps) => {
+export const Product3DViewer = ({ productId: _productId, productName, imageUrl }: Product3DViewerProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isARMode, setIsARMode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)

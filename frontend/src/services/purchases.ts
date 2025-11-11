@@ -1,6 +1,8 @@
 import { api } from './api'
 import { Purchase, ShippingLabel } from '@/types'
 
+export type { Purchase } from '@/types'
+
 export interface CreatePurchaseRequest {
   product_id: string
   shipping_address: string

@@ -1,26 +1,21 @@
 import { useState, useRef, useEffect } from 'react'
-import { superClaudeService, SuperClaudeMessage, Attachment, CodeBlock, ConversationContext, SuperClaudeCapability } from '@/services/superClaude'
+import { superClaudeService, Attachment, CodeBlock, ConversationContext, SuperClaudeCapability } from '@/services/superClaude'
 import {
   XMarkIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
   SparklesIcon,
-  CodeBracketIcon,
   DocumentDuplicateIcon,
   ShareIcon,
   TrashIcon,
-  Cog6ToothIcon,
-  FolderOpenIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ArrowDownTrayIcon,
   PlayIcon,
   ChevronDownIcon,
-  CheckIcon,
   ClockIcon,
   CpuChipIcon
 } from '@heroicons/react/24/outline'
-import { StarIcon } from '@heroicons/react/24/solid'
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -72,7 +67,7 @@ export const SuperClaude = ({ onClose }: SuperClaudeProps) => {
     setShowCapabilities(false)
 
     try {
-      const response = await superClaudeService.sendMessage(
+      await superClaudeService.sendMessage(
         input,
         attachments,
         { model: selectedModel, temperature }
@@ -392,14 +387,15 @@ export const SuperClaude = ({ onClose }: SuperClaudeProps) => {
                         }`}
                       >
                         {message.role === 'assistant' ? (
-                          <ReactMarkdown
-                            className="prose prose-sm dark:prose-invert max-w-none"
-                            components={{
-                              code({ node, inline, className, children, ...props }) {
+                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                            <ReactMarkdown
+                              components={{
+                                code({ node, className, children, ...props }) {
                                 const match = /language-(\w+)/.exec(className || '')
                                 const codeString = String(children).replace(/\n$/, '')
+                                const isInline = !match
 
-                                if (!inline && match) {
+                                if (!isInline && match) {
                                   const codeBlock = message.codeBlocks?.find(b =>
                                     b.code.trim() === codeString.trim()
                                   )
@@ -443,7 +439,7 @@ export const SuperClaude = ({ onClose }: SuperClaudeProps) => {
                                   )
                                 }
 
-                                return inline ? (
+                                return isInline ? (
                                   <code className="px-1 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-sm" {...props}>
                                     {children}
                                   </code>
@@ -455,6 +451,7 @@ export const SuperClaude = ({ onClose }: SuperClaudeProps) => {
                           >
                             {message.content}
                           </ReactMarkdown>
+                          </div>
                         ) : (
                           <div className="whitespace-pre-wrap">{message.content}</div>
                         )}

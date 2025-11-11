@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useAuthStore } from '@/store/authStore'
 import { productService } from '@/services/products'
 import { aiService } from '@/services/ai'
 import { Product, ProductFilters } from '@/types'
