@@ -215,20 +215,21 @@ export const Home = () => {
         </div>
 
         {/* Category Pills */}
-        <div className="mb-6 overflow-x-auto no-scrollbar">
-          <div className="flex gap-3 pb-2">
+        <div className="mb-8 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex gap-3 min-w-max sm:flex-wrap">
             {categories.map((cat) => {
               const Icon = cat.Icon
+              const isActive = filters.category === cat.value || (cat.value === 'all' && !filters.category)
               return (
                 <button
                   key={cat.value}
                   onClick={() => handleFilterChange('category', cat.value === 'all' ? undefined : cat.value)}
                   className={`
-                    flex items-center gap-2 px-5 py-3 rounded-xl whitespace-nowrap
-                    transition-all duration-200 hover-lift font-semibold
-                    ${filters.category === cat.value || (cat.value === 'all' && !filters.category)
-                      ? `bg-gradient-to-r ${cat.gradient} text-white shadow-mercari-hover`
-                      : 'bg-white text-gray-700 hover:shadow-mercari border border-gray-200'
+                    flex items-center gap-2.5 px-6 py-3.5 rounded-xl whitespace-nowrap
+                    transition-all duration-300 font-bold text-sm
+                    ${isActive
+                      ? `bg-gradient-to-r ${cat.gradient} text-white shadow-lg scale-105 shadow-${cat.gradient.split('-')[1]}-500/20`
+                      : 'bg-white dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:shadow-lg hover:-translate-y-0.5 border-2 border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700'
                     }
                   `}
                 >
@@ -251,12 +252,18 @@ export const Home = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Toolbar */}
-            <div className="card mb-6 p-4">
+            <div className="card mb-8 p-5 bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {products.length} 件の商品
-                  </span>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                    <span className="text-base font-bold text-slate-900 dark:text-white">
+                      {products.length}
+                    </span>
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                      件の商品
+                    </span>
+                  </div>
                   {filters.search && (
                     <button
                       onClick={() => {
@@ -264,9 +271,9 @@ export const Home = () => {
                         setFilters({ ...filters, search: '', page: 1 })
                         setTranslationInfo('')
                       }}
-                      className="flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                     >
-                      <XMarkIcon className="w-3 h-3" />
+                      <XMarkIcon className="w-3.5 h-3.5" />
                       検索をクリア
                     </button>
                   )}
@@ -292,9 +299,13 @@ export const Home = () => {
                   {/* Filter Button */}
                   <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`btn-secondary flex items-center gap-2 ${showFilters ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : ''}`}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition-all duration-200 ${
+                      showFilters
+                        ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
                   >
-                    <AdjustmentsHorizontalIcon className="w-4 h-4" />
+                    <AdjustmentsHorizontalIcon className="w-5 h-5" />
                     <span>フィルター</span>
                   </button>
                 </div>
@@ -302,7 +313,7 @@ export const Home = () => {
 
               {/* Advanced Filters */}
               {showFilters && (
-                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up">
+                <div className="mt-6 pt-6 border-t-2 border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 animate-fade-up">
                   {/* Condition Filter */}
                   <div>
                     <label className="label">状態</label>
@@ -364,32 +375,32 @@ export const Home = () => {
 
             {/* Products Grid */}
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="card animate-pulse">
-                    <div className="aspect-square bg-slate-200 dark:bg-slate-700 rounded-t-xl" />
-                    <div className="p-4">
-                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded mb-3" />
-                      <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded mb-3 w-2/3" />
-                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+                  <div key={i} className="card animate-pulse overflow-hidden">
+                    <div className="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800" />
+                    <div className="p-5">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg mb-3 w-3/4" />
+                      <div className="h-7 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4 w-1/2" />
+                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg w-2/3" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {products.map((product, index) => (
                   <div
                     key={product.id}
                     className="animate-fade-up"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                    style={{ animationDelay: `${index * 40}ms` }}
                   >
                     <ProductCard product={product} />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="card p-12 text-center">
+              <div className="card p-16 text-center">
                 <div className="mb-4 flex justify-center">
                   <MagnifyingGlassIcon className="w-16 h-16 text-gray-300" />
                 </div>
