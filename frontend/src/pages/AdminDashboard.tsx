@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/common/Button'
+import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { adminService } from '@/services/admin'
 import { User, Product, Purchase } from '@/types'
 import {
@@ -390,11 +391,11 @@ export const AdminDashboard = () => {
         {/* Content */}
         {loading ? (
           <div className="card p-12 flex flex-col items-center justify-center">
-            <div className="relative w-16 h-16 mb-4">
-              <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700"></div>
-              <div className="absolute inset-0 rounded-full border-4 border-primary-500 border-t-transparent animate-spin"></div>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 font-medium">読み込み中...</p>
+            <LoadingSpinner
+              type="spinner"
+              size="xl"
+              text="データを読み込んでいます..."
+            />
           </div>
         ) : (
           <div className="animate-fade-up" style={{ animationDelay: '400ms' }}>
@@ -700,11 +701,11 @@ export const AdminDashboard = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setEditingUser(null)}
-                  className="flex-1"
+                  className="flex-1 btn-ripple"
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" className="flex-1 btn-gradient">
+                <Button type="submit" className="flex-1 btn-gradient btn-ripple">
                   更新
                 </Button>
               </div>
@@ -810,11 +811,11 @@ export const AdminDashboard = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setEditingProduct(null)}
-                  className="flex-1"
+                  className="flex-1 btn-ripple"
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" className="flex-1 btn-gradient">
+                <Button type="submit" className="flex-1 btn-gradient btn-ripple">
                   更新
                 </Button>
               </div>
@@ -860,11 +861,11 @@ export const AdminDashboard = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setEditingPurchase(null)}
-                  className="flex-1"
+                  className="flex-1 btn-ripple"
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" className="flex-1 btn-gradient">
+                <Button type="submit" className="flex-1 btn-gradient btn-ripple">
                   更新
                 </Button>
               </div>

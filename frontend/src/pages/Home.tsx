@@ -8,6 +8,8 @@ import { FloatingAIAssistant } from '@/components/ai/FloatingAIAssistant'
 import { LeaderboardSidebar } from '@/components/sustainability/LeaderboardSidebar'
 import { Header } from '@/components/layout/Header'
 import { useTranslation } from '@/i18n/useTranslation'
+import { EmptyState } from '@/components/common/EmptyState'
+import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import {
   MagnifyingGlassIcon,
   SparklesIcon,
@@ -190,7 +192,7 @@ export const Home = () => {
                 <button
                   type="submit"
                   disabled={isTranslating}
-                  className="btn-gradient px-6 rounded-xl flex items-center gap-2"
+                  className="btn-gradient btn-ripple px-6 rounded-xl flex items-center gap-2"
                 >
                   {isTranslating ? (
                     <>
@@ -375,17 +377,12 @@ export const Home = () => {
 
             {/* Products Grid */}
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="card animate-pulse overflow-hidden">
-                    <div className="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800" />
-                    <div className="p-5">
-                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg mb-3 w-3/4" />
-                      <div className="h-7 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4 w-1/2" />
-                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg w-2/3" />
-                    </div>
-                  </div>
-                ))}
+              <div className="flex justify-center py-16">
+                <LoadingSpinner
+                  type="dots"
+                  size="lg"
+                  text="商品を読み込んでいます..."
+                />
               </div>
             ) : products.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -400,17 +397,19 @@ export const Home = () => {
                 ))}
               </div>
             ) : (
-              <div className="card p-16 text-center">
-                <div className="mb-4 flex justify-center">
-                  <MagnifyingGlassIcon className="w-16 h-16 text-gray-300" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  商品が見つかりませんでした
-                </h3>
-                <p className="text-gray-600">
-                  検索条件を変更してもう一度お試しください
-                </p>
-              </div>
+              <EmptyState
+                type="search"
+                title="商品が見つかりませんでした"
+                description="検索条件を変更してもう一度お試しください"
+                action={{
+                  label: "すべての商品を見る",
+                  onClick: () => {
+                    setSearchTerm('')
+                    setFilters({ page: 1, limit: 20, sort: 'created_desc' })
+                    setTranslationInfo('')
+                  }
+                }}
+              />
             )}
 
             {/* Load More */}
@@ -418,7 +417,7 @@ export const Home = () => {
               <div className="mt-8 text-center">
                 <button
                   onClick={() => handleFilterChange('page', (filters.page ?? 1) + 1)}
-                  className="btn-primary px-8 py-3"
+                  className="btn-primary btn-ripple px-8 py-3"
                 >
                   もっと見る
                 </button>
