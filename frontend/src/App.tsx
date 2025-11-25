@@ -1,24 +1,41 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useAuthStore } from "./store/authStore";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
-import { Home } from "./pages/Home";
-import { ProductDetail } from "./pages/ProductDetail";
-import { PurchaseProduct } from "./pages/PurchaseProduct";
-import { Purchases } from "./pages/Purchases";
-import { ShippingLabel } from "./pages/ShippingLabel";
-import { AutoPurchaseWatches } from "./pages/AutoPurchaseWatches";
-import { Messages } from "./pages/Messages";
-import { Chat } from "./pages/Chat";
-import { CreateProduct } from "./pages/CreateProduct";
-import AICreateProduct from "./pages/AICreateProduct";
-import { Profile } from "./pages/Profile";
-import { Leaderboard } from "./pages/Leaderboard";
-import { Favorites } from "./pages/Favorites";
-import { Notifications } from "./pages/Notifications";
-import { AdminDashboard } from "./pages/AdminDashboard";
+import { LoadingSpinner } from "./components/common/LoadingSpinner";
+
+// React Query configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+// Lazy load pages for code splitting
+const Login = lazy(() => import("./pages/Login").then(m => ({ default: m.Login })));
+const Register = lazy(() => import("./pages/Register").then(m => ({ default: m.Register })));
+const Home = lazy(() => import("./pages/Home").then(m => ({ default: m.Home })));
+const ProductDetail = lazy(() => import("./pages/ProductDetail").then(m => ({ default: m.ProductDetail })));
+const PurchaseProduct = lazy(() => import("./pages/PurchaseProduct").then(m => ({ default: m.PurchaseProduct })));
+const Purchases = lazy(() => import("./pages/Purchases").then(m => ({ default: m.Purchases })));
+const ShippingLabel = lazy(() => import("./pages/ShippingLabel").then(m => ({ default: m.ShippingLabel })));
+const AutoPurchaseWatches = lazy(() => import("./pages/AutoPurchaseWatches").then(m => ({ default: m.AutoPurchaseWatches })));
+const Messages = lazy(() => import("./pages/Messages").then(m => ({ default: m.Messages })));
+const Chat = lazy(() => import("./pages/Chat").then(m => ({ default: m.Chat })));
+const CreateProduct = lazy(() => import("./pages/CreateProduct").then(m => ({ default: m.CreateProduct })));
+const AICreateProduct = lazy(() => import("./pages/AICreateProduct"));
+const Profile = lazy(() => import("./pages/Profile").then(m => ({ default: m.Profile })));
+const Leaderboard = lazy(() => import("./pages/Leaderboard").then(m => ({ default: m.Leaderboard })));
+const Favorites = lazy(() => import("./pages/Favorites").then(m => ({ default: m.Favorites })));
+const Notifications = lazy(() => import("./pages/Notifications").then(m => ({ default: m.Notifications })));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard").then(m => ({ default: m.AdminDashboard })));
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -56,12 +73,20 @@ function App() {
   }, [isAuthenticated, token, user]);
 
   return (
-    <BrowserRouter>
-      <Toaster position="top-right" />
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Toaster position="top-right" />
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-dark">
+              <LoadingSpinner type="spinner" size="xl" text="読み込み中..." />
+            </div>
+          }
+        >
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
         {/* Protected routes */}
         <Route
@@ -185,10 +210,13 @@ function App() {
           }
         />
 
-        {/* Redirect to home by default */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+            {/* Redirect to home by default */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

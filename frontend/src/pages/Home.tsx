@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
-import { productService } from '@/services/products'
+import { useState } from 'react'
 import { aiService } from '@/services/ai'
-import { Product, ProductFilters } from '@/types'
+import { ProductFilters } from '@/types'
+import { useProducts } from '@/hooks/useProducts'
 import { ProductCard } from '@/components/products/ProductCard'
 import { VoiceSearch } from '@/components/search/VoiceSearch'
 import { FloatingAIAssistant } from '@/components/ai/FloatingAIAssistant'
@@ -27,12 +27,9 @@ import {
   TrophyIcon
 } from '@heroicons/react/24/outline'
 import { StarIcon } from '@heroicons/react/24/solid'
-import toast from 'react-hot-toast'
 
 export const Home = () => {
   const { t, language, setLanguage } = useTranslation()
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<ProductFilters>({
     page: 1,
     limit: 20,
@@ -43,21 +40,8 @@ export const Home = () => {
   const [translationInfo, setTranslationInfo] = useState<string>('')
   const [showFilters, setShowFilters] = useState(false)
 
-  useEffect(() => {
-    loadProducts()
-  }, [filters])
-
-  const loadProducts = async () => {
-    try {
-      setLoading(true)
-      const data = await productService.list(filters)
-      setProducts(data.products)
-    } catch (error: any) {
-      toast.error('商品の読み込みに失敗しました')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Use React Query for data fetching
+  const { data: products = [], isLoading: loading } = useProducts(filters)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -2,8 +2,17 @@ import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/common/Button'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
-import { adminService } from '@/services/admin'
 import { User, Product, Purchase } from '@/types'
+import {
+  useAdminUsers,
+  useAdminProducts,
+  useAdminPurchases,
+  useUpdateUser,
+  useDeleteUser,
+  useAdminUpdateProduct,
+  useAdminDeleteProduct,
+  useAdminUpdatePurchase,
+} from '@/hooks/useAdmin'
 import {
   UsersIcon,
   ShoppingBagIcon,
@@ -18,7 +27,6 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/solid'
-import toast from 'react-hot-toast'
 
 type TabType = 'users' | 'products' | 'purchases'
 
@@ -35,7 +43,6 @@ interface Stats {
 
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>('users')
-  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
@@ -48,156 +55,115 @@ export const AdminDashboard = () => {
     revenueGrowth: 23.4
   })
 
-  // Users state
-  const [users, setUsers] = useState<User[]>([])
-  const [usersTotal, setUsersTotal] = useState(0)
-
-  // Products state
-  const [products, setProducts] = useState<Product[]>([])
-  const [productsTotal, setProductsTotal] = useState(0)
-
-  // Purchases state
-  const [purchases, setPurchases] = useState<Purchase[]>([])
-  const [purchasesTotal, setPurchasesTotal] = useState(0)
-
   // Edit modal state
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null)
 
+  // React Query hooks
+  const { data: usersData, isLoading: usersLoading } = useAdminUsers()
+  const { data: productsData, isLoading: productsLoading } = useAdminProducts()
+  const { data: purchasesData, isLoading: purchasesLoading } = useAdminPurchases()
+
+  const updateUserMutation = useUpdateUser()
+  const deleteUserMutation = useDeleteUser()
+  const updateProductMutation = useAdminUpdateProduct()
+  const deleteProductMutation = useAdminDeleteProduct()
+  const updatePurchaseMutation = useAdminUpdatePurchase()
+
+  // Extract data from queries
+  const users = usersData?.users || []
+  const usersTotal = usersData?.pagination?.total || 0
+  const products = productsData?.products || []
+  const productsTotal = productsData?.pagination?.total || 0
+  const purchases = purchasesData?.purchases || []
+  const purchasesTotal = purchasesData?.pagination?.total || 0
+
+  // Calculate revenue
+  const totalRevenue = purchases.reduce((sum, p) => sum + p.price, 0)
+
+  // Determine loading state based on active tab
+  const loading =
+    (activeTab === 'users' && usersLoading) ||
+    (activeTab === 'products' && productsLoading) ||
+    (activeTab === 'purchases' && purchasesLoading)
+
+  // Update stats when data changes
   useEffect(() => {
-    loadData()
-  }, [activeTab])
+    setStats(prev => ({
+      ...prev,
+      totalUsers: usersTotal,
+      totalProducts: productsTotal,
+      totalPurchases: purchasesTotal,
+      totalRevenue,
+    }))
+  }, [usersTotal, productsTotal, purchasesTotal, totalRevenue])
 
-  const loadData = async () => {
-    setLoading(true)
-    try {
-      if (activeTab === 'users') {
-        await loadUsers()
-      } else if (activeTab === 'products') {
-        await loadProducts()
-      } else if (activeTab === 'purchases') {
-        await loadPurchases()
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadUsers = async () => {
-    try {
-      const data = await adminService.getUsers()
-      setUsers(data.users)
-      setUsersTotal(data.pagination.total)
-      setStats(prev => ({ ...prev, totalUsers: data.pagination.total }))
-    } catch (error) {
-      toast.error('ユーザーの読み込みに失敗しました')
-    }
-  }
-
-  const loadProducts = async () => {
-    try {
-      const data = await adminService.getProducts()
-      setProducts(data.products)
-      setProductsTotal(data.pagination.total)
-      setStats(prev => ({ ...prev, totalProducts: data.pagination.total }))
-    } catch (error) {
-      toast.error('商品の読み込みに失敗しました')
-    }
-  }
-
-  const loadPurchases = async () => {
-    try {
-      const data = await adminService.getPurchases()
-      setPurchases(data.purchases)
-      setPurchasesTotal(data.pagination.total)
-      const revenue = data.purchases.reduce((sum, p) => sum + p.price, 0)
-      setStats(prev => ({
-        ...prev,
-        totalPurchases: data.pagination.total,
-        totalRevenue: revenue
-      }))
-    } catch (error) {
-      toast.error('購入履歴の読み込みに失敗しました')
-    }
-  }
-
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = (userId: string) => {
     if (!confirm('このユーザーを削除しますか？この操作は取り消せません。')) return
-
-    try {
-      await adminService.deleteUser(userId)
-      toast.success('ユーザーを削除しました')
-      loadUsers()
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'ユーザーの削除に失敗しました')
-    }
+    deleteUserMutation.mutate(userId)
   }
 
-  const handleDeleteProduct = async (productId: string) => {
+  const handleDeleteProduct = (productId: string) => {
     if (!confirm('この商品を削除しますか？この操作は取り消せません。')) return
-
-    try {
-      await adminService.deleteProduct(productId)
-      toast.success('商品を削除しました')
-      loadProducts()
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || '商品の削除に失敗しました')
-    }
+    deleteProductMutation.mutate(productId)
   }
 
-  const handleUpdateUser = async (e: React.FormEvent) => {
+  const handleUpdateUser = (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingUser) return
 
-    try {
-      await adminService.updateUser(editingUser.id, {
-        display_name: editingUser.display_name,
-        role: editingUser.role,
-        bio: editingUser.bio,
-      })
-      toast.success('ユーザー情報を更新しました')
-      setEditingUser(null)
-      loadUsers()
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || '更新に失敗しました')
-    }
+    updateUserMutation.mutate(
+      {
+        userId: editingUser.id,
+        data: {
+          display_name: editingUser.display_name,
+          role: editingUser.role,
+          bio: editingUser.bio,
+        },
+      },
+      {
+        onSuccess: () => setEditingUser(null),
+      }
+    )
   }
 
-  const handleUpdateProduct = async (e: React.FormEvent) => {
+  const handleUpdateProduct = (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingProduct) return
 
-    try {
-      await adminService.updateProduct(editingProduct.id, {
-        title: editingProduct.title,
-        description: editingProduct.description,
-        price: editingProduct.price,
-        status: editingProduct.status,
-        condition: editingProduct.condition,
-      })
-      toast.success('商品情報を更新しました')
-      setEditingProduct(null)
-      loadProducts()
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || '更新に失敗しました')
-    }
+    updateProductMutation.mutate(
+      {
+        productId: editingProduct.id,
+        data: {
+          title: editingProduct.title,
+          description: editingProduct.description,
+          price: editingProduct.price,
+          status: editingProduct.status,
+          condition: editingProduct.condition,
+        },
+      },
+      {
+        onSuccess: () => setEditingProduct(null),
+      }
+    )
   }
 
-  const handleUpdatePurchase = async (e: React.FormEvent) => {
+  const handleUpdatePurchase = (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingPurchase) return
 
-    try {
-      await adminService.updatePurchase(editingPurchase.id, {
-        status: editingPurchase.status,
-      })
-      toast.success('購入情報を更新しました')
-      setEditingPurchase(null)
-      loadPurchases()
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || '更新に失敗しました')
-    }
+    updatePurchaseMutation.mutate(
+      {
+        purchaseId: editingPurchase.id,
+        data: {
+          status: editingPurchase.status,
+        },
+      },
+      {
+        onSuccess: () => setEditingPurchase(null),
+      }
+    )
   }
 
   const getStatusBadge = (status: string, type: 'product' | 'purchase') => {
