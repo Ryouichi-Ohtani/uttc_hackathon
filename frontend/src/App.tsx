@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useAuthStore } from "./store/authStore";
 import { LoadingSpinner } from "./components/common/LoadingSpinner";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
 
 // React Query configuration
 const queryClient = new QueryClient({
@@ -73,10 +74,11 @@ function App() {
   }, [isAuthenticated, token, user]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Toaster position="top-right" />
-        <Suspense
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Toaster position="top-right" />
+          <Suspense
           fallback={
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-dark">
               <LoadingSpinner type="spinner" size="xl" text="読み込み中..." />
@@ -217,6 +219,7 @@ function App() {
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
