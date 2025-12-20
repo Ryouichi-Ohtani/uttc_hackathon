@@ -167,62 +167,6 @@ func (h *OfferHandler) GetNegotiationSuggestion(c *gin.Context) {
 	c.JSON(http.StatusOK, suggestion)
 }
 
-// StartAINegotiation handles POST /offers/:id/ai-negotiate
-func (h *OfferHandler) StartAINegotiation(c *gin.Context) {
-	_, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	offerID, err := uuid.Parse(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offer ID"})
-		return
-	}
-
-	// Start AI negotiation
-	if err := h.offerUseCase.StartAINegotiation(offerID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Return updated offer with negotiation logs
-	// This will be handled by re-fetching the offer
-	c.JSON(http.StatusOK, gin.H{"message": "AI negotiation started successfully"})
-}
-
-// RetryAINegotiationWithPrompt handles POST /offers/:id/ai-renegotiate
-func (h *OfferHandler) RetryAINegotiationWithPrompt(c *gin.Context) {
-	_, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	offerID, err := uuid.Parse(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offer ID"})
-		return
-	}
-
-	var req struct {
-		CustomPrompt string `json:"custom_prompt"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Start AI negotiation with custom prompt
-	if err := h.offerUseCase.RetryAINegotiationWithPrompt(offerID, req.CustomPrompt); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "AI re-negotiation started successfully"})
-}
-
 // GetMarketPriceAnalysis handles GET /offers/:id/market-analysis
 func (h *OfferHandler) GetMarketPriceAnalysis(c *gin.Context) {
 	_, exists := c.Get("user_id")

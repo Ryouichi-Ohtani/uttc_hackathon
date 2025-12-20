@@ -16,12 +16,28 @@ import (
 type ProductUseCase struct {
 	productRepo domain.ProductRepository
 	aiClient    *infrastructure.AIClient
+	viewCountFn func(uuid.UUID)
 }
 
 func NewProductUseCase(productRepo domain.ProductRepository, aiClient *infrastructure.AIClient) *ProductUseCase {
-	return &ProductUseCase{
+	uc := &ProductUseCase{
 		productRepo: productRepo,
 		aiClient:    aiClient,
+	}
+	uc.viewCountFn = uc.defaultViewCountFunc()
+	return uc
+}
+
+func (uc *ProductUseCase) SetViewCountFunc(fn func(uuid.UUID)) {
+	if fn == nil {
+		return
+	}
+	uc.viewCountFn = fn
+}
+
+func (uc *ProductUseCase) defaultViewCountFunc() func(uuid.UUID) {
+	return func(id uuid.UUID) {
+		go uc.productRepo.IncrementViewCount(id)
 	}
 }
 
@@ -61,10 +77,10 @@ func (uc *ProductUseCase) CreateProduct(
 	// Use AI assistance if requested
 	if req.UseAIAssistance && uc.aiClient != nil {
 		analysisReq := &infrastructure.ProductAnalysisRequest{
-			Images:                imageBytes,
-			Title:                 req.Title,
+			Images:                  imageBytes,
+			Title:                   req.Title,
 			UserProvidedDescription: req.Description,
-			Category:              req.Category,
+			Category:                req.Category,
 		}
 
 		analysisResp, err := uc.aiClient.AnalyzeProduct(ctx, analysisReq)
@@ -121,8 +137,10 @@ func (uc *ProductUseCase) GetProduct(id uuid.UUID) (*domain.Product, error) {
 		return nil, err
 	}
 
-	// Increment view count asynchronously
-	go uc.productRepo.IncrementViewCount(id)
+	// Increment view count
+	if uc.viewCountFn != nil {
+		uc.viewCountFn(id)
+	}
 
 	return product, nil
 }

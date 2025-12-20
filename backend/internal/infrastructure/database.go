@@ -36,7 +36,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&domain.Notification{},
 		&domain.Review{},
 		&domain.Offer{},
-		&domain.NegotiationLog{},
 		&domain.UserEvent{},
 		&domain.Auction{},
 		&domain.Bid{},

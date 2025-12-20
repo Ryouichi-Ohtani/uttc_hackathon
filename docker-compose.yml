@@ -39,6 +39,7 @@ services:
       - AI_SERVICE_URL=ai-service:50051
       - GIN_MODE=debug
       - ENV=development
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
     depends_on:
       postgres:
         condition: service_healthy

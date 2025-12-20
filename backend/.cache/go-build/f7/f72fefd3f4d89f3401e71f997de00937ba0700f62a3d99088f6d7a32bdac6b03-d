@@ -1,0 +1,17 @@
+./ai_agent_usecase.go
+./analytics_usecase.go
+./auction_usecase.go
+./auth_usecase.go
+./blockchain_usecase.go
+./chatbot_usecase.go
+./message_usecase.go
+./notification_usecase.go
+./offer_usecase.go
+./product_usecase.go
+./purchase_usecase.go
+./recommendation_usecase.go
+./review_usecase.go
+./sales_prediction_usecase.go
+./social_usecase.go
+./sustainability_usecase.go
+./voice_search_usecase.go

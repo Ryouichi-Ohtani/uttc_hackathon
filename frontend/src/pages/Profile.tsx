@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/common/Button'
@@ -6,6 +6,7 @@ import { Card } from '@/components/common/Card'
 import { Header } from '@/components/layout/Header'
 import api from '@/services/api'
 import { Product } from '@/types'
+import { messageService } from '@/services/messages'
 import { offerService, Offer, MarketPriceAnalysis } from '@/services/offers'
 import toast from 'react-hot-toast'
 import { PROFILE_PLACEHOLDER } from '@/utils/placeholderImages'
@@ -71,32 +72,6 @@ export const Profile = () => {
     }
   }
 
-  const handleStartAINegotiation = async (offerId: string) => {
-    try {
-      console.log('Starting AI negotiation for offer:', offerId)
-      await offerService.startAINegotiation(offerId)
-      toast.success('AI交渉を開始しました')
-      await loadMyOffers()
-    } catch (error: any) {
-      console.error('AI negotiation error:', error)
-      const errorMessage = error.response?.data?.error || error.message || 'AI交渉の開始に失敗しました'
-      toast.error(errorMessage)
-    }
-  }
-
-  const handleRetryAINegotiation = async (offerId: string, customPrompt: string) => {
-    try {
-      console.log('Retrying AI negotiation with custom prompt for offer:', offerId, 'Prompt:', customPrompt)
-      await offerService.retryAINegotiationWithPrompt(offerId, customPrompt)
-      toast.success('カスタムプロンプトで再交渉を開始しました')
-      await loadMyOffers()
-    } catch (error: any) {
-      console.error('AI re-negotiation error:', error)
-      const errorMessage = error.response?.data?.error || error.message || 'AI再交渉の開始に失敗しました'
-      toast.error(errorMessage)
-    }
-  }
-
   const handleGetMarketAnalysis = async (offerId: string) => {
     try {
       setLoadingAnalysis(prev => ({ ...prev, [offerId]: true }))
@@ -112,7 +87,7 @@ export const Profile = () => {
     }
   }
 
-  const handleRespondToOffer = async (offerId: string, accept: boolean) => {
+  const handleRespondToOffer = useCallback(async (offerId: string, accept: boolean) => {
     try {
       console.log('Responding to offer:', offerId, 'Accept:', accept)
       const result = await offerService.respond(offerId, {
@@ -128,7 +103,18 @@ export const Profile = () => {
       const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || '価格交渉の返答に失敗しました'
       toast.error(errorMessage)
     }
-  }
+  }, [loadMyOffers])
+
+  const handleStartChat = useCallback(async (productId: string) => {
+    if (!user) return
+    try {
+      const conversation = await messageService.getOrCreateConversation(productId, user.id)
+      navigate(`/chat/${conversation.id}`)
+    } catch (error) {
+      console.error('Failed to open chat:', error)
+      toast.error('チャットを開けませんでした')
+    }
+  }, [navigate, user])
 
   const handleEditProduct = (id: string) => {
     navigate(`/products/${id}/edit`)
@@ -583,103 +569,33 @@ export const Profile = () => {
                                 </div>
                               )}
 
-                              {/* AI Negotiation Logs */}
-                              {offer.ai_negotiation_logs && offer.ai_negotiation_logs.length > 0 && (
-                                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-3">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <div className="text-sm font-bold text-blue-700">AI自動交渉の記録</div>
-                                    {offer.final_ai_price && (
-                                      <div className="ml-auto px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
-                                        AI推奨価格: ¥{offer.final_ai_price.toLocaleString()}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                                    {offer.ai_negotiation_logs.map((log) => (
-                                      <div
-                                        key={log.id}
-                                        className={`text-xs p-2 rounded ${
-                                          log.role === 'buyer_ai'
-                                            ? 'bg-blue-100 text-blue-900'
-                                            : log.role === 'seller_ai'
-                                            ? 'bg-green-100 text-green-900'
-                                            : 'bg-gray-100 text-gray-900 font-bold'
-                                        }`}
-                                      >
-                                        <div className="font-semibold mb-1">
-                                          {log.role === 'buyer_ai' ? '購入者AI' : log.role === 'seller_ai' ? '出品者AI' : 'システム'}
-                                          {log.price && ` (¥${log.price.toLocaleString()})`}
-                                        </div>
-                                        <div>{log.message}</div>
-                                      </div>
-                                    ))}
-                                  </div>
-
-                                  {/* Custom Prompt Re-negotiation */}
-                                  {offer.status === 'pending' && (
-                                    <div className="mt-3 pt-3 border-t border-purple-200">
-                                      <div className="text-xs font-semibold text-purple-700 mb-2">カスタムプロンプトで再交渉</div>
-                                      <div className="flex gap-2">
-                                        <input
-                                          type="text"
-                                          placeholder="例: もっと値下げ交渉を強気にして"
-                                          className="flex-1 text-xs px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                          id={`custom-prompt-${offer.id}`}
-                                        />
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => {
-                                            const input = document.getElementById(`custom-prompt-${offer.id}`) as HTMLInputElement
-                                            const prompt = input?.value?.trim()
-                                            if (prompt) {
-                                              handleRetryAINegotiation(offer.id, prompt)
-                                              input.value = ''
-                                            }
-                                          }}
-                                          className="bg-purple-500 text-white hover:bg-purple-600 text-xs whitespace-nowrap"
-                                        >
-                                          再交渉
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
                               {/* Action Buttons */}
                               {offer.status === 'pending' && (
-                                <div className="space-y-2">
-                                  {/* AI Negotiation Button */}
-                                  {(!offer.ai_negotiation_logs || offer.ai_negotiation_logs.length === 0) && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => handleStartAINegotiation(offer.id)}
-                                      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
-                                    >
-                                      AIに交渉させる
-                                    </Button>
-                                  )}
-
-                                  <div className="flex gap-2">
-                                    <Button
-                                      size="sm"
-                                      variant="primary"
-                                      onClick={() => handleRespondToOffer(offer.id, true)}
-                                      className="flex-1"
-                                    >
-                                      承認する
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => handleRespondToOffer(offer.id, false)}
-                                      className="flex-1 text-red-600 hover:bg-red-50"
-                                    >
-                                      拒否する
-                                    </Button>
-                                  </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={() => handleRespondToOffer(offer.id, true)}
+                                    className="flex-1 min-w-[120px]"
+                                  >
+                                    承認する
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleRespondToOffer(offer.id, false)}
+                                    className="flex-1 min-w-[120px] text-red-600 hover:bg-red-50"
+                                  >
+                                    拒否する
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleStartChat(offer.product_id)}
+                                    className="flex-1 min-w-[160px]"
+                                  >
+                                    メッセージで交渉
+                                  </Button>
                                 </div>
                               )}
                             </div>

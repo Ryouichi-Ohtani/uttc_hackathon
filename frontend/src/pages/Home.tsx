@@ -69,7 +69,7 @@ export const Home = () => {
 
     try {
       setIsTranslating(true)
-      setTranslationInfo('検索中...')
+      setTranslationInfo(t('home.search.infoSearching'))
 
       const translation = await aiService.translateSearch(searchTerm)
       const multilingualQuery = [
@@ -83,12 +83,12 @@ export const Home = () => {
       const langName = translation.detected_language === 'ja' ? '日本語' :
                       translation.detected_language === 'en' ? 'English' :
                       translation.detected_language
-      setTranslationInfo(`検出: ${langName} | ${translation.search_intent}`)
+      setTranslationInfo(`${t('home.search.detectedPrefix')}: ${langName} | ${translation.search_intent}`)
 
       setFilters({ ...filters, search: multilingualQuery, page: 1 })
     } catch (error) {
       setFilters({ ...filters, search: searchTerm, page: 1 })
-      setTranslationInfo('元のクエリで検索中')
+      setTranslationInfo(t('home.search.infoFallback'))
     } finally {
       setIsTranslating(false)
     }
@@ -99,29 +99,29 @@ export const Home = () => {
   }
 
   const categories = [
-    { value: 'all', label: 'すべて', Icon: SparklesIcon, gradient: 'from-primary-500 to-accent-500' },
-    { value: 'electronics', label: '電子機器', Icon: ComputerDesktopIcon, gradient: 'from-secondary-500 to-secondary-600' },
-    { value: 'clothing', label: 'ファッション', Icon: ShoppingBagIcon, gradient: 'from-accent-500 to-accent-600' },
-    { value: 'furniture', label: '家具', Icon: HomeModernIcon, gradient: 'from-amber-500 to-orange-500' },
-    { value: 'books', label: '書籍', Icon: BookOpenIcon, gradient: 'from-purple-500 to-indigo-500' },
-    { value: 'toys', label: 'おもちゃ', Icon: PuzzlePieceIcon, gradient: 'from-green-500 to-emerald-500' },
-    { value: 'sports', label: 'スポーツ', Icon: TrophyIcon, gradient: 'from-primary-600 to-accent-600' },
+    { value: 'all', label: t('home.categories.all'), Icon: SparklesIcon, gradient: 'from-primary-500 to-accent-500' },
+    { value: 'electronics', label: t('home.categories.electronics'), Icon: ComputerDesktopIcon, gradient: 'from-secondary-500 to-secondary-600' },
+    { value: 'clothing', label: t('home.categories.clothing'), Icon: ShoppingBagIcon, gradient: 'from-accent-500 to-accent-600' },
+    { value: 'furniture', label: t('home.categories.furniture'), Icon: HomeModernIcon, gradient: 'from-amber-500 to-orange-500' },
+    { value: 'books', label: t('home.categories.books'), Icon: BookOpenIcon, gradient: 'from-purple-500 to-indigo-500' },
+    { value: 'toys', label: t('home.categories.toys'), Icon: PuzzlePieceIcon, gradient: 'from-green-500 to-emerald-500' },
+    { value: 'sports', label: t('home.categories.sports'), Icon: TrophyIcon, gradient: 'from-primary-600 to-accent-600' },
   ]
 
   const sortOptions = [
-    { value: 'created_desc', label: '新着順', icon: <ArrowDownIcon className="w-4 h-4" /> },
-    { value: 'created_asc', label: '古い順', icon: <ArrowUpIcon className="w-4 h-4" /> },
-    { value: 'price_asc', label: '価格の安い順', icon: <ArrowUpIcon className="w-4 h-4" /> },
-    { value: 'price_desc', label: '価格の高い順', icon: <ArrowDownIcon className="w-4 h-4" /> },
-    { value: 'popular', label: '人気順', icon: <StarIcon className="w-4 h-4" /> },
+    { value: 'created_desc', label: t('home.sort.newest'), icon: <ArrowDownIcon className="w-4 h-4" /> },
+    { value: 'created_asc', label: t('home.sort.oldest'), icon: <ArrowUpIcon className="w-4 h-4" /> },
+    { value: 'price_asc', label: t('home.sort.priceLow'), icon: <ArrowUpIcon className="w-4 h-4" /> },
+    { value: 'price_desc', label: t('home.sort.priceHigh'), icon: <ArrowDownIcon className="w-4 h-4" /> },
+    { value: 'popular', label: t('home.sort.popular'), icon: <StarIcon className="w-4 h-4" /> },
   ]
 
   const conditionOptions = [
-    { value: 'all', label: 'すべて' },
-    { value: 'new', label: '新品' },
-    { value: 'like_new', label: '未使用に近い' },
-    { value: 'good', label: '良好' },
-    { value: 'fair', label: '使用感あり' },
+    { value: 'all', label: t('home.filters.conditionOptions.all') },
+    { value: 'new', label: t('home.filters.conditionOptions.new') },
+    { value: 'like_new', label: t('home.filters.conditionOptions.like_new') },
+    { value: 'good', label: t('home.filters.conditionOptions.good') },
+    { value: 'fair', label: t('home.filters.conditionOptions.fair') },
   ]
 
   return (
@@ -136,10 +136,10 @@ export const Home = () => {
         <div className="py-8 mb-8">
           <div className="text-center mb-6 animate-fade-up">
             <h1 className="text-4xl md:text-5xl font-bold mb-3">
-              <span className="gradient-text">サステナブルな未来へ</span>
+              <span className="gradient-text">{t('home.heroTitle')}</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400">
-              AI が最適な価格と出品をサポート
+              {t('home.heroSubtitle')}
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export const Home = () => {
                   <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 ml-4 mr-3" />
                   <input
                     type="text"
-                    placeholder={t('search.placeholder')}
+                    placeholder={t('home.search.placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     disabled={isTranslating}
@@ -196,12 +196,12 @@ export const Home = () => {
                   {isTranslating ? (
                     <>
                       <SparklesIcon className="w-5 h-5 animate-spin" />
-                      <span className="hidden sm:inline">翻訳中...</span>
+                      <span className="hidden sm:inline">{t('home.search.translating')}</span>
                     </>
                   ) : (
                     <>
                       <SparklesIcon className="w-5 h-5" />
-                      <span className="hidden sm:inline">AI検索</span>
+                      <span className="hidden sm:inline">{t('home.search.cta')}</span>
                     </>
                   )}
                 </button>
@@ -256,7 +256,7 @@ export const Home = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {products.length} 件の商品
+                    {products.length} {t('home.resultsCountSuffix')}
                   </span>
                   {filters.search && (
                     <button
@@ -268,7 +268,7 @@ export const Home = () => {
                       className="flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
                     >
                       <XMarkIcon className="w-3 h-3" />
-                      検索をクリア
+                      {t('home.search.clear')}
                     </button>
                   )}
                 </div>
@@ -296,7 +296,7 @@ export const Home = () => {
                     className={`btn-secondary flex items-center gap-2 ${showFilters ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : ''}`}
                   >
                     <AdjustmentsHorizontalIcon className="w-4 h-4" />
-                    <span>フィルター</span>
+                    <span>{t('home.filters.filterButton')}</span>
                   </button>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export const Home = () => {
                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up">
                   {/* Condition Filter */}
                   <div>
-                    <label className="label">状態</label>
+                    <label className="label">{t('home.filters.condition')}</label>
                     <select
                       value={filters.condition || 'all'}
                       onChange={(e) => handleFilterChange('condition', e.target.value === 'all' ? undefined : e.target.value)}
@@ -322,7 +322,7 @@ export const Home = () => {
 
                   {/* Price Range */}
                   <div>
-                    <label className="label">最低価格</label>
+                    <label className="label">{t('home.filters.minPrice')}</label>
                     <input
                       type="number"
                       placeholder="¥0"
@@ -332,7 +332,7 @@ export const Home = () => {
                     />
                   </div>
                   <div>
-                    <label className="label">最高価格</label>
+                    <label className="label">{t('home.filters.maxPrice')}</label>
                     <input
                       type="number"
                       placeholder="¥999,999"
@@ -344,7 +344,7 @@ export const Home = () => {
 
                   {/* AI Generated Only */}
                   <div>
-                    <label className="label">AI生成のみ</label>
+                    <label className="label">{t('home.filters.aiOnly')}</label>
                     <button
                       onClick={() => handleFilterChange('ai_generated', !filters.ai_generated)}
                       className={`w-full py-2.5 rounded-lg border-2 transition-colors ${
@@ -355,7 +355,7 @@ export const Home = () => {
                     >
                       <span className="flex items-center justify-center gap-2">
                         <SparklesIcon className="w-4 h-4" />
-                        {filters.ai_generated ? 'オン' : 'オフ'}
+                        {filters.ai_generated ? t('home.filters.toggleOn') : t('home.filters.toggleOff')}
                       </span>
                     </button>
                   </div>
@@ -395,10 +395,10 @@ export const Home = () => {
                   <MagnifyingGlassIcon className="w-16 h-16 text-gray-300" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  商品が見つかりませんでした
+                  {t('home.emptyTitle')}
                 </h3>
                 <p className="text-gray-600">
-                  検索条件を変更してもう一度お試しください
+                  {t('home.emptyBody')}
                 </p>
               </div>
             )}
@@ -410,7 +410,7 @@ export const Home = () => {
                   onClick={() => handleFilterChange('page', (filters.page ?? 1) + 1)}
                   className="btn-primary px-8 py-3"
                 >
-                  もっと見る
+                  {t('home.loadMore')}
                 </button>
               </div>
             )}

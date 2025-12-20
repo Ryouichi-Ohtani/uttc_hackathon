@@ -1,9 +1,12 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
 	"fmt"
-	"log"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 func main() {

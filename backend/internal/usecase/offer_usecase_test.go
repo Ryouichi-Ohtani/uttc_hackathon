@@ -48,16 +48,6 @@ func (m *MockOfferRepository) Update(offer *domain.Offer) error {
 	return args.Error(0)
 }
 
-func (m *MockOfferRepository) ClearNegotiationLogs(offerID uuid.UUID) error {
-	args := m.Called(offerID)
-	return args.Error(0)
-}
-
-func (m *MockOfferRepository) CreateNegotiationLog(log *domain.NegotiationLog) error {
-	args := m.Called(log)
-	return args.Error(0)
-}
-
 func TestOfferUseCase_CreateOffer_Success(t *testing.T) {
 	// Arrange
 	mockOfferRepo := new(MockOfferRepository)

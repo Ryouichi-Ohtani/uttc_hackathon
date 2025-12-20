@@ -26,6 +26,7 @@ type Purchase struct {
 	Status          PurchaseStatus `json:"status" gorm:"default:pending"`
 	PaymentMethod   string         `json:"payment_method"`
 	ShippingAddress string         `json:"shipping_address"`
+	CO2SavedKg      float64        `json:"co2_saved_kg" gorm:"not null;default:0"`
 	CompletedAt     *time.Time     `json:"completed_at"`
 	CreatedAt       time.Time      `json:"created_at"`
 }

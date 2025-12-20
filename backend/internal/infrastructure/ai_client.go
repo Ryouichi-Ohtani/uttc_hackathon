@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	pb "github.com/yourusername/ecomate/proto"
 	"google.golang.org/grpc"
@@ -12,9 +13,9 @@ import (
 )
 
 type AIClient struct {
-	client        pb.ProductAnalysisServiceClient
-	conn          *grpc.ClientConn
-	geminiClient  *GeminiClient
+	client       pb.ProductAnalysisServiceClient
+	conn         *grpc.ClientConn
+	geminiClient *GeminiClient
 }
 
 func NewAIClient(serverURL string) (*AIClient, error) {
@@ -47,30 +48,41 @@ func (c *AIClient) Close() error {
 }
 
 type ProductAnalysisRequest struct {
-	Images                [][]byte
-	Title                 string
+	Images                  [][]byte
+	Title                   string
 	UserProvidedDescription string
-	Category              string
+	Category                string
 }
 
 type ProductAnalysisResponse struct {
-	GeneratedDescription        string
-	SuggestedPrice              int
-	EstimatedWeightKg           float64
-	ManufacturerCountry         string
-	EstimatedManufacturingYear  int
-	CO2ImpactKg                 float64
-	IsInappropriate             bool
-	InappropriateReason         string
-	DetectedObjects             []string
+	GeneratedDescription       string
+	SuggestedPrice             int
+	EstimatedWeightKg          float64
+	ManufacturerCountry        string
+	EstimatedManufacturingYear int
+	CO2ImpactKg                float64
+	IsInappropriate            bool
+	InappropriateReason        string
+	DetectedObjects            []string
+}
+
+type MessageSuggestionRequest struct {
+	Role               string
+	ProductTitle       string
+	ProductDescription string
+	ProductPrice       int
+	ProductCategory    string
+	ProductCondition   string
+	ImageURLs          []string
+	History            []string
 }
 
 func (c *AIClient) AnalyzeProduct(ctx context.Context, req *ProductAnalysisRequest) (*ProductAnalysisResponse, error) {
 	resp, err := c.client.AnalyzeProduct(ctx, &pb.AnalyzeProductRequest{
-		Images:                 req.Images,
-		Title:                  req.Title,
+		Images:                  req.Images,
+		Title:                   req.Title,
 		UserProvidedDescription: req.UserProvidedDescription,
-		Category:               req.Category,
+		Category:                req.Category,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to analyze product: %w", err)
@@ -87,6 +99,71 @@ func (c *AIClient) AnalyzeProduct(ctx context.Context, req *ProductAnalysisReque
 		InappropriateReason:        resp.InappropriateReason,
 		DetectedObjects:            resp.DetectedObjects,
 	}, nil
+}
+
+func (c *AIClient) GenerateMessageSuggestion(ctx context.Context, req *MessageSuggestionRequest) (string, error) {
+	if req == nil {
+		return "", fmt.Errorf("Message suggestion request is nil")
+	}
+
+	var prompt strings.Builder
+	prompt.WriteString("You are EcoMate's AI assistant. Compose a concise, polite message for the buyer or seller:\n")
+	prompt.WriteString(fmt.Sprintf("Role: %s\n", req.Role))
+	prompt.WriteString(fmt.Sprintf("Product: %s (¥%d)\n", req.ProductTitle, req.ProductPrice))
+	if req.ProductCategory != "" {
+		prompt.WriteString(fmt.Sprintf("Category: %s\n", req.ProductCategory))
+	}
+	if req.ProductCondition != "" {
+		prompt.WriteString(fmt.Sprintf("Condition: %s\n", req.ProductCondition))
+	}
+	if req.ProductDescription != "" {
+		prompt.WriteString(fmt.Sprintf("Description: %s\n", req.ProductDescription))
+	}
+	if len(req.ImageURLs) > 0 {
+		prompt.WriteString("Images: ")
+		prompt.WriteString(strings.Join(req.ImageURLs, ", "))
+		prompt.WriteString("\n")
+	}
+	if len(req.History) > 0 {
+		prompt.WriteString("Conversation history:\n")
+		for _, entry := range req.History {
+			prompt.WriteString("- ")
+			prompt.WriteString(entry)
+			prompt.WriteString("\n")
+		}
+	}
+
+	messagePrompt := prompt.String()
+
+	if c.geminiClient != nil {
+		return c.geminiClient.GenerateContent(ctx, messagePrompt)
+	}
+
+	// Fallback: craft a reasonable message without calling Gemini.
+	var builder strings.Builder
+	builder.WriteString(fmt.Sprintf("%sとしてご挨拶します。", req.Role))
+	builder.WriteString(fmt.Sprintf("「%s（¥%d）」の詳細を確認し、落ち着いた口調でまとめます。", req.ProductTitle, req.ProductPrice))
+	if req.ProductDescription != "" {
+		builder.WriteString("商品の説明にある")
+		builder.WriteString(req.ProductDescription)
+		builder.WriteString("を踏まえ、")
+	}
+	builder.WriteString("市場価格に照らして誠実に提案したいと思います。")
+	if len(req.ImageURLs) > 0 {
+		builder.WriteString("掲載されている画像から")
+		builder.WriteString(fmt.Sprintf("%d枚", len(req.ImageURLs)))
+		builder.WriteString("の印象を受け、")
+	}
+	if len(req.History) > 0 {
+		builder.WriteString("これまでの交渉履歴を理解し、")
+		for _, entry := range req.History {
+			builder.WriteString(entry)
+			builder.WriteString("。")
+		}
+	}
+	builder.WriteString("互いに歩み寄る意欲を見せつつ、妥当な提案を差し上げます。")
+
+	return builder.String(), nil
 }
 
 type CO2CalculationRequest struct {
@@ -891,12 +968,12 @@ func (c *AIClient) AnalyzeMarketPrice(
 
 // MarketPriceAnalysisResult represents the result of market price analysis
 type MarketPriceAnalysisResult struct {
-	RecommendedPrice  int                      `json:"recommended_price"`
-	MinPrice          int                      `json:"min_price"`
-	MaxPrice          int                      `json:"max_price"`
-	MarketData        []MarketDataSourceResult `json:"market_data"`
-	Analysis          string                   `json:"analysis"`
-	ConfidenceLevel   string                   `json:"confidence_level"`
+	RecommendedPrice int                      `json:"recommended_price"`
+	MinPrice         int                      `json:"min_price"`
+	MaxPrice         int                      `json:"max_price"`
+	MarketData       []MarketDataSourceResult `json:"market_data"`
+	Analysis         string                   `json:"analysis"`
+	ConfidenceLevel  string                   `json:"confidence_level"`
 }
 
 // MarketDataSourceResult represents a single market data point

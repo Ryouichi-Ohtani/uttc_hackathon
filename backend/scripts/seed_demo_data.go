@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 package main
 
 import (
@@ -25,11 +28,11 @@ type Product struct {
 	SellerID    uuid.UUID `gorm:"type:uuid;not null"`
 	Title       string    `gorm:"not null"`
 	Description string
-	Price       int       `gorm:"not null"`
-	Category    string    `gorm:"not null"`
-	Condition   string    `gorm:"not null"`
-	Status      string    `gorm:"default:'active'"`
-	ViewCount   int       `gorm:"default:0"`
+	Price       int    `gorm:"not null"`
+	Category    string `gorm:"not null"`
+	Condition   string `gorm:"not null"`
+	Status      string `gorm:"default:'active'"`
+	ViewCount   int    `gorm:"default:0"`
 	CreatedAt   time.Time
 }
 

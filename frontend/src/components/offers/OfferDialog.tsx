@@ -24,8 +24,9 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
       const response = await api.get(`/offers/products/${productId}/ai-suggestion`)
       setAiSuggestion(response.data)
 
-      if (response.data.suggested_price) {
-        setOfferPrice(response.data.suggested_price.toString())
+      const suggested = response.data.suggested_price ?? response.data.recommended_price
+      if (suggested) {
+        setOfferPrice(suggested.toString())
       }
 
       toast.success('AI価格提案を取得しました！')
@@ -105,10 +106,15 @@ export const OfferDialog = ({ productId, currentPrice, onClose, onSuccess }: Off
               <div className="flex-1">
                 <div className="font-semibold text-primary-900 mb-1">AI価格提案</div>
                 <div className="text-xl font-bold text-primary-600 mb-2">
-                  ¥{aiSuggestion.suggested_price?.toLocaleString()}
+                  ¥{(aiSuggestion.suggested_price ?? aiSuggestion.recommended_price ?? 0).toLocaleString()}
                 </div>
+                {aiSuggestion.acceptance_rate !== undefined && (
+                  <div className="text-sm text-primary-700 mb-1">
+                    成立確率: {(aiSuggestion.acceptance_rate * 100).toFixed(0)}%
+                  </div>
+                )}
                 <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                  {aiSuggestion.reasoning}
+                  {aiSuggestion.reasoning || '市場データと過去のオファーから算出しました。'}
                 </div>
               </div>
             </div>

@@ -15,6 +15,8 @@ export const Chat = () => {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [ws, setWs] = useState<WebSocket | null>(null)
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WebSocket | null>(null)
 
@@ -113,9 +115,32 @@ export const Chat = () => {
         const message = await messageService.sendMessage(id, messageContent)
         setMessages((prev) => [...prev, message])
       }
+      setAiSuggestion(null)
     } catch (error) {
       toast.error('Failed to send message')
       setNewMessage(messageContent) // Restore message on error
+    }
+  }
+
+  const handleAISuggestion = async () => {
+    if (!id || aiLoading) return
+
+    try {
+      setAiLoading(true)
+      const suggestion = await messageService.requestSuggestion(id)
+      setAiSuggestion(suggestion)
+      toast.success('AI提案を取得しました')
+    } catch (error) {
+      console.error('AI suggestion error:', error)
+      toast.error('AI提案の取得に失敗しました')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const applyAISuggestion = () => {
+    if (aiSuggestion) {
+      setNewMessage(aiSuggestion)
     }
   }
 
@@ -173,18 +198,48 @@ export const Chat = () => {
 
       {/* Input */}
       <div className="bg-white border-t border-gray-200 px-4 py-4">
-        <form onSubmit={handleSend} className="max-w-3xl mx-auto flex gap-2">
-          <Input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1"
-          />
-          <Button type="submit" disabled={!newMessage.trim()}>
-            Send
-          </Button>
-        </form>
+        <div className="max-w-3xl mx-auto space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleAISuggestion}
+              disabled={aiLoading}
+              className="bg-gray-50 text-gray-800"
+            >
+              {aiLoading ? 'AI提案を取得中…' : 'AIにメッセージ案を作ってもらう'}
+            </Button>
+            {aiSuggestion && (
+              <button
+                type="button"
+                className="text-xs font-semibold text-primary-700 underline"
+                onClick={applyAISuggestion}
+              >
+                提案を入力
+              </button>
+            )}
+          </div>
+
+          {aiSuggestion && (
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-gray-800">
+              <p className="whitespace-pre-wrap">{aiSuggestion}</p>
+              <p className="mt-2 text-xs text-gray-500">AIからの提案</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSend} className="flex gap-2">
+            <Input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1"
+            />
+            <Button type="submit" disabled={!newMessage.trim()}>
+              Send
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   )

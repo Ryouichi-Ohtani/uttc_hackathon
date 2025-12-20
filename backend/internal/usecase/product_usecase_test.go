@@ -52,6 +52,9 @@ func TestProductUseCase_GetByID(t *testing.T) {
 	// Arrange
 	mockRepo := new(MockProductRepository)
 	useCase := usecase.NewProductUseCase(mockRepo, nil)
+	useCase.SetViewCountFunc(func(id uuid.UUID) {
+		mockRepo.IncrementViewCount(id)
+	})
 
 	productID := uuid.New()
 	expectedProduct := &domain.Product{

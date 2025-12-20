@@ -22,6 +22,9 @@ func (r *messageRepository) FindConversationByID(id uuid.UUID) (*domain.Conversa
 	var conversation domain.Conversation
 	if err := r.db.
 		Preload("Product").
+		Preload("Product.Images", func(db *gorm.DB) *gorm.DB {
+			return db.Order("is_primary DESC, display_order ASC")
+		}).
 		Preload("Participants").
 		Preload("Participants.User").
 		Where("id = ?", id).

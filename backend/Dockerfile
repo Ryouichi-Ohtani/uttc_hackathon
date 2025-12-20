@@ -3,8 +3,8 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-# Copy proto files
-COPY proto/ ./proto/
+# Copy proto files to path expected by go.mod replace (../proto resolves to /proto)
+COPY proto/ /proto/
 
 # Copy backend files
 COPY backend/go.mod backend/go.sum ./

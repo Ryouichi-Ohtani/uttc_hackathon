@@ -78,7 +78,7 @@ For example:
 }
 
 func (h *AIHandler) callGeminiAPI(prompt string) (TranslateSearchResponse, error) {
-	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + h.geminiAPIKey
+	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + h.geminiAPIKey
 
 	requestBody := map[string]interface{}{
 		"contents": []map[string]interface{}{

@@ -76,6 +76,11 @@ class MessageService {
 
     return ws
   }
+
+  async requestSuggestion(conversationId: string): Promise<string> {
+    const response = await api.post<{ suggestion: string }>(`/conversations/${conversationId}/message-suggestion`)
+    return response.data.suggestion
+  }
 }
 
 export const messageService = new MessageService()

@@ -77,12 +77,13 @@ func main() {
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWT.Secret, cfg.JWT.ExpirationHours)
 	productUseCase := usecase.NewProductUseCase(productRepo, aiClient)
 	purchaseUseCase := usecase.NewPurchaseUseCase(purchaseRepo, productRepo, userRepo)
-	messageUseCase := usecase.NewMessageUseCase(messageRepo, productRepo)
+	messageUseCase := usecase.NewMessageUseCase(messageRepo, productRepo, aiClient)
 	sustainabilityUseCase := usecase.NewSustainabilityUseCase(sustainabilityRepo, userRepo)
 	notificationUseCase := usecase.NewNotificationUseCase(notificationRepo)
 	reviewUseCase := usecase.NewReviewUseCase(reviewRepo, purchaseRepo)
 	recommendationUseCase := usecase.NewRecommendationUseCase(productRepo, purchaseRepo)
 	offerUseCase := usecase.NewOfferUseCase(offerRepo, productRepo, aiClient)
+	offerUseCase.SetMessageUseCase(messageUseCase)
 	analyticsUseCase := usecase.NewAnalyticsUseCase(analyticsRepo)
 	salesPredictionUseCase := usecase.NewSalesPredictionUseCase(productRepo, purchaseRepo, userRepo)
 	auctionUseCase := usecase.NewAuctionUseCase(auctionRepo, bidRepo, productRepo)
@@ -95,9 +96,6 @@ func main() {
 	// Initialize Gemini client
 	geminiClient := infrastructure.NewGeminiClient()
 	aiAgentUseCase := usecase.NewAIAgentUseCase(aiAgentRepo, productRepo, offerRepo, purchaseRepo, geminiClient)
-
-	// Connect AI Agent to Offer UseCase (for automatic negotiation)
-	offerUseCase.SetAIAgentUseCase(aiAgentUseCase)
 
 	// Initialize handlers
 	authHandler := interfaces.NewAuthHandler(authUseCase)
@@ -185,6 +183,7 @@ func main() {
 			conversations.GET("/product/:productId/seller/:sellerId", messageHandler.GetOrCreateConversation)
 			conversations.GET("/:id/messages", messageHandler.GetMessages)
 			conversations.POST("/:id/messages", messageHandler.SendMessage)
+			conversations.POST("/:id/message-suggestion", messageHandler.SuggestMessage)
 		}
 
 		// WebSocket route
@@ -233,8 +232,6 @@ func main() {
 			offers.GET("/my", offerHandler.GetMyOffers)
 			offers.GET("/products/:id", offerHandler.GetProductOffers)
 			offers.GET("/products/:id/ai-suggestion", offerHandler.GetNegotiationSuggestion)
-			offers.POST("/:id/ai-negotiate", offerHandler.StartAINegotiation)
-			offers.POST("/:id/ai-renegotiate", offerHandler.RetryAINegotiationWithPrompt)
 			offers.GET("/:id/market-analysis", offerHandler.GetMarketPriceAnalysis)
 			offers.PATCH("/:id/respond", offerHandler.RespondOffer)
 		}

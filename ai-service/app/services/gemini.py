@@ -12,7 +12,7 @@ class GeminiService:
             raise ValueError("GOOGLE_API_KEY environment variable is required")
 
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-flash-latest')
 
     def analyze_product_images(
         self,

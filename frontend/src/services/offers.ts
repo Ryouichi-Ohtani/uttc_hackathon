@@ -1,14 +1,5 @@
 import { api } from './api'
 
-export interface NegotiationLog {
-  id: string
-  offer_id: string
-  role: 'buyer_ai' | 'seller_ai' | 'system'
-  message: string
-  price?: number
-  created_at: string
-}
-
 export interface Offer {
   id: string
   product_id: string
@@ -17,8 +8,6 @@ export interface Offer {
   message: string
   status: 'pending' | 'accepted' | 'rejected' | 'cancelled'
   response_message: string
-  ai_negotiation_logs?: NegotiationLog[]
-  final_ai_price?: number
   created_at: string
   updated_at: string
   responded_at?: string
@@ -79,14 +68,6 @@ export const offerService = {
   async respond(offerId: string, data: RespondOfferRequest): Promise<Offer> {
     const response = await api.patch<Offer>(`/offers/${offerId}/respond`, data)
     return response.data
-  },
-
-  async startAINegotiation(offerId: string): Promise<void> {
-    await api.post(`/offers/${offerId}/ai-negotiate`)
-  },
-
-  async retryAINegotiationWithPrompt(offerId: string, customPrompt: string): Promise<void> {
-    await api.post(`/offers/${offerId}/ai-renegotiate`, { custom_prompt: customPrompt })
   },
 
   async getMarketPriceAnalysis(offerId: string): Promise<MarketPriceAnalysis> {

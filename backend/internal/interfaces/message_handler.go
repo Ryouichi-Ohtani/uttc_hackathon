@@ -141,6 +141,24 @@ func (h *MessageHandler) SendMessage(c *gin.Context) {
 	c.JSON(http.StatusCreated, message)
 }
 
+func (h *MessageHandler) SuggestMessage(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+
+	conversationID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid conversation id"})
+		return
+	}
+
+	suggestion, err := h.messageUseCase.SuggestMessage(conversationID, userID.(uuid.UUID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"suggestion": suggestion})
+}
+
 func (h *MessageHandler) WebSocketHandler(c *gin.Context) {
 	conversationID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
