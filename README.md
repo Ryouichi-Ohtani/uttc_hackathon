@@ -344,7 +344,7 @@ AI配送情報準備 (10秒)
 - **State Management**: React Context + Hooks
 - **Styling**: Tailwind CSS
 - **3D**: Three.js
-- **i18n**: Custom implementation
+- **i18n**: Custom　implementation
 
 ### DevOps
 - **CI/CD**: GitHub Actions
@@ -528,6 +528,7 @@ POST   /api/v1/ai-agent/shipping/:purchase_id/approve # 承認
 ```
 GET    /api/v1/ai-agent/stats                    # エージェント統計
 ```
+
 
 ## 📈 パフォーマンスメトリクス
 
