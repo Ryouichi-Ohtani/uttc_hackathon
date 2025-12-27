@@ -30,8 +30,9 @@ type DatabaseConfig struct {
 	User     string
 	Password string
 	DBName   string
-	SSLMode  string
+	Params   string
 }
+
 
 type JWTConfig struct {
 	Secret          string
@@ -63,12 +64,13 @@ func Load() (*Config, error) {
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
-			Port:     getEnv("DB_PORT", "5432"),
+			Port:     getEnv("DB_PORT", "3306"),
 			User:     getEnv("DB_USER", "ecomate"),
 			Password: getEnv("DB_PASSWORD", ""),
 			DBName:   getEnv("DB_NAME", "ecomate_db"),
-			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+			Params:   getEnv("DB_PARAMS", "parseTime=true&charset=utf8mb4&loc=UTC"),
 		},
+
 		JWT: JWTConfig{
 			Secret:          getEnv("JWT_SECRET", ""),
 			ExpirationHours: getEnvAsInt("JWT_EXPIRATION_HOURS", 72),
@@ -98,11 +100,24 @@ func Load() (*Config, error) {
 }
 
 func (c *DatabaseConfig) DSN() string {
+	params := c.Params
+	if params == "" {
+		params = "parseTime=true&charset=utf8mb4&loc=UTC"
+	}
+
+	network := "tcp"
+	address := fmt.Sprintf("%s:%s", c.Host, c.Port)
+	if strings.HasPrefix(c.Host, "/") {
+		network = "unix"
+		address = c.Host
+	}
+
 	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode,
+		"%s:%s@%s(%s)/%s?%s",
+		c.User, c.Password, network, address, c.DBName, params,
 	)
 }
+
 
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {

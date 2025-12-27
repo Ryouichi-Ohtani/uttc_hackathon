@@ -9,11 +9,11 @@ import (
 
 // LiveStream represents a live streaming session
 type LiveStream struct {
-	ID          uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	SellerID    uuid.UUID      `gorm:"type:uuid;not null;index" json:"seller_id"`
+	ID          uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	SellerID    uuid.UUID      `gorm:"type:char(36);not null;index" json:"seller_id"`
 	Title       string         `gorm:"not null" json:"title"`
 	Description string         `gorm:"type:text" json:"description"`
-	ProductIDs  []uuid.UUID    `gorm:"type:uuid[];not null" json:"product_ids"` // Products featured in stream
+	ProductIDs  []uuid.UUID    `gorm:"type:json;serializer:json;not null" json:"product_ids"` // Products featured in stream
 	Status      string         `gorm:"not null;default:'scheduled'" json:"status"` // scheduled, live, ended
 	StreamURL   string         `json:"stream_url"`
 	ViewerCount int            `gorm:"default:0" json:"viewer_count"`
@@ -31,9 +31,9 @@ type LiveStream struct {
 
 // StreamComment represents a comment in a live stream
 type StreamComment struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	StreamID  uuid.UUID      `gorm:"type:uuid;not null;index" json:"stream_id"`
-	UserID    uuid.UUID      `gorm:"type:uuid;not null" json:"user_id"`
+	ID        uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	StreamID  uuid.UUID      `gorm:"type:char(36);not null;index" json:"stream_id"`
+	UserID    uuid.UUID      `gorm:"type:char(36);not null" json:"user_id"`
 	Comment   string         `gorm:"type:text;not null" json:"comment"`
 	CreatedAt time.Time      `json:"created_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`

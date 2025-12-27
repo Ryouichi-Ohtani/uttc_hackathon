@@ -16,8 +16,8 @@ const (
 )
 
 type Notification struct {
-	ID        uuid.UUID        `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID    uuid.UUID        `json:"user_id" gorm:"type:uuid;not null;index"`
+	ID        uuid.UUID        `json:"id" gorm:"type:char(36);primary_key"`
+	UserID    uuid.UUID        `json:"user_id" gorm:"type:char(36);not null;index"`
 	Type      NotificationType `json:"type" gorm:"not null"`
 	Title     string           `json:"title" gorm:"not null"`
 	Message   string           `json:"message"`
@@ -27,11 +27,11 @@ type Notification struct {
 }
 
 type Review struct {
-	ID         uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID  uuid.UUID  `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID         uuid.UUID  `json:"id" gorm:"type:char(36);primary_key"`
+	ProductID  uuid.UUID  `json:"product_id" gorm:"type:char(36);not null;index"`
 	Product    *Product   `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	PurchaseID uuid.UUID  `json:"purchase_id" gorm:"type:uuid;not null;index"`
-	ReviewerID uuid.UUID  `json:"reviewer_id" gorm:"type:uuid;not null;index"`
+	PurchaseID uuid.UUID  `json:"purchase_id" gorm:"type:char(36);not null;index"`
+	ReviewerID uuid.UUID  `json:"reviewer_id" gorm:"type:char(36);not null;index"`
 	Reviewer   *User      `json:"reviewer,omitempty" gorm:"foreignKey:ReviewerID"`
 	Rating     int        `json:"rating" gorm:"not null"` // 1-5
 	Comment    string     `json:"comment"`

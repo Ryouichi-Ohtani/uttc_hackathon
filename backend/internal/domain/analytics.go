@@ -18,11 +18,11 @@ const (
 )
 
 type UserEvent struct {
-	ID         uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID     uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index"`
+	ID         uuid.UUID `json:"id" gorm:"type:char(36);primary_key"`
+	UserID     uuid.UUID `json:"user_id" gorm:"type:char(36);not null;index"`
 	EventType  EventType `json:"event_type" gorm:"not null;index"`
-	ProductID  *uuid.UUID `json:"product_id" gorm:"type:uuid;index"`
-	Metadata   string    `json:"metadata" gorm:"type:jsonb"`
+	ProductID  *uuid.UUID `json:"product_id" gorm:"type:char(36);index"`
+	Metadata   string    `json:"metadata" gorm:"type:json"`
 	IPAddress  string    `json:"ip_address"`
 	UserAgent  string    `json:"user_agent"`
 	CreatedAt  time.Time `json:"created_at" gorm:"index"`

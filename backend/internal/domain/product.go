@@ -23,8 +23,8 @@ const (
 )
 
 type Product struct {
-	ID                         uuid.UUID        `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	SellerID                   uuid.UUID        `json:"seller_id" gorm:"type:uuid;not null;index"`
+	ID                         uuid.UUID        `json:"id" gorm:"type:char(36);primary_key"`
+	SellerID                   uuid.UUID        `json:"seller_id" gorm:"type:char(36);not null;index"`
 	Seller                     *User            `json:"seller,omitempty" gorm:"foreignKey:SellerID"`
 	Title                      string           `json:"title" gorm:"not null"`
 	Description                string           `json:"description"`
@@ -50,8 +50,8 @@ type Product struct {
 }
 
 type ProductImage struct {
-	ID           uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID    uuid.UUID `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID           uuid.UUID `json:"id" gorm:"type:char(36);primary_key"`
+	ProductID    uuid.UUID `json:"product_id" gorm:"type:char(36);not null;index"`
 	ImageURL     string    `json:"image_url" gorm:"not null"`
 	CDNURL       string    `json:"cdn_url"`
 	DisplayOrder int       `json:"display_order" gorm:"default:0"`

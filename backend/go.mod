@@ -12,7 +12,7 @@ require (
 	github.com/yourusername/ecomate/proto v0.0.0-00010101000000-000000000000
 	golang.org/x/crypto v0.23.0
 	google.golang.org/grpc v1.61.0
-	gorm.io/driver/postgres v1.5.4
+	gorm.io/driver/mysql v1.5.4
 	gorm.io/gorm v1.25.5
 )
 

@@ -16,10 +16,10 @@ const (
 )
 
 type Offer struct {
-	ID            uuid.UUID   `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID     uuid.UUID   `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID            uuid.UUID   `json:"id" gorm:"type:char(36);primary_key"`
+	ProductID     uuid.UUID   `json:"product_id" gorm:"type:char(36);not null;index"`
 	Product       *Product    `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	BuyerID       uuid.UUID   `json:"buyer_id" gorm:"type:uuid;not null;index"`
+	BuyerID       uuid.UUID   `json:"buyer_id" gorm:"type:char(36);not null;index"`
 	Buyer         *User       `json:"buyer,omitempty" gorm:"foreignKey:BuyerID"`
 	OfferPrice    int         `json:"offer_price" gorm:"not null"`
 	Message       string      `json:"message"`

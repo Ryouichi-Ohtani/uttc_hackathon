@@ -9,8 +9,8 @@ import (
 
 // ChatHistory represents a chatbot conversation history
 type ChatHistory struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	UserID    uuid.UUID      `gorm:"type:uuid;not null;index" json:"user_id"`
+	ID        uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	UserID    uuid.UUID      `gorm:"type:char(36);not null;index" json:"user_id"`
 	Message   string         `gorm:"type:text;not null" json:"message"`
 	Response  string         `gorm:"type:text;not null" json:"response"`
 	Context   string         `gorm:"type:text" json:"context"` // Product ID or other context
@@ -27,8 +27,8 @@ type ChatHistoryRepository interface {
 
 // CO2Goal represents a user's CO2 reduction goal
 type CO2Goal struct {
-	ID             uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	UserID         uuid.UUID      `gorm:"type:uuid;not null;unique;index" json:"user_id"`
+	ID             uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	UserID         uuid.UUID      `gorm:"type:char(36);not null;unique;index" json:"user_id"`
 	TargetKG       float64        `gorm:"not null" json:"target_kg"`
 	CurrentKG      float64        `gorm:"default:0" json:"current_kg"`
 	TargetDate     time.Time      `gorm:"not null" json:"target_date"`
@@ -48,8 +48,8 @@ type CO2GoalRepository interface {
 
 // ShippingTracking represents shipping information for a purchase
 type ShippingTracking struct {
-	ID               uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	PurchaseID       uuid.UUID      `gorm:"type:uuid;not null;unique;index" json:"purchase_id"`
+	ID               uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	PurchaseID       uuid.UUID      `gorm:"type:char(36);not null;unique;index" json:"purchase_id"`
 	TrackingNumber   string         `gorm:"not null" json:"tracking_number"`
 	Carrier          string         `gorm:"not null" json:"carrier"` // yamato, sagawa, yupack, etc.
 	Status           string         `gorm:"not null;default:'pending'" json:"status"` // pending, shipped, in_transit, delivered

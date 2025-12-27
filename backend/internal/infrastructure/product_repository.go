@@ -50,7 +50,7 @@ func (r *productRepository) List(filters *domain.ProductFilters) ([]*domain.Prod
 	}
 	if filters.Search != "" {
 		query = query.Where(
-			"to_tsvector('english', title || ' ' || COALESCE(description, '')) @@ plainto_tsquery(?)",
+			"MATCH(title, description) AGAINST (? IN NATURAL LANGUAGE MODE)",
 			filters.Search,
 		)
 	}

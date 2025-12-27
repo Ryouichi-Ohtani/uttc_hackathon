@@ -7,7 +7,7 @@ import (
 )
 
 type Achievement struct {
-	ID              uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID              uuid.UUID `json:"id" gorm:"type:char(36);primary_key"`
 	Name            string    `json:"name" gorm:"uniqueIndex;not null"`
 	Description     string    `json:"description"`
 	BadgeIconURL    string    `json:"badge_icon_url"`
@@ -17,17 +17,17 @@ type Achievement struct {
 }
 
 type UserAchievement struct {
-	ID            uuid.UUID    `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID        uuid.UUID    `json:"user_id" gorm:"type:uuid;not null;index"`
-	AchievementID uuid.UUID    `json:"achievement_id" gorm:"type:uuid;not null"`
+	ID            uuid.UUID    `json:"id" gorm:"type:char(36);primary_key"`
+	UserID        uuid.UUID    `json:"user_id" gorm:"type:char(36);not null;index"`
+	AchievementID uuid.UUID    `json:"achievement_id" gorm:"type:char(36);not null"`
 	Achievement   *Achievement `json:"achievement,omitempty" gorm:"foreignKey:AchievementID"`
 	EarnedAt      time.Time    `json:"earned_at"`
 }
 
 type SustainabilityLog struct {
-	ID          uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID      uuid.UUID  `json:"user_id" gorm:"type:uuid;not null;index"`
-	PurchaseID  *uuid.UUID `json:"purchase_id" gorm:"type:uuid"`
+	ID          uuid.UUID  `json:"id" gorm:"type:char(36);primary_key"`
+	UserID      uuid.UUID  `json:"user_id" gorm:"type:char(36);not null;index"`
+	PurchaseID  *uuid.UUID `json:"purchase_id" gorm:"type:char(36)"`
 	ActionType  string     `json:"action_type" gorm:"not null"` // purchase, sale
 	CO2SavedKg  float64    `json:"co2_saved_kg" gorm:"type:decimal(10,2);not null"`
 	Description string     `json:"description"`
@@ -35,9 +35,9 @@ type SustainabilityLog struct {
 }
 
 type Favorite struct {
-	ID        uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID    uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index"`
-	ProductID uuid.UUID `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID        uuid.UUID `json:"id" gorm:"type:char(36);primary_key"`
+	UserID    uuid.UUID `json:"user_id" gorm:"type:char(36);not null;index"`
+	ProductID uuid.UUID `json:"product_id" gorm:"type:char(36);not null;index"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

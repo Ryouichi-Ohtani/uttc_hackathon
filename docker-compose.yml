@@ -1,21 +1,22 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
+  mysql:
+    image: mysql:8.0
     container_name: ecomate-db
     environment:
-      POSTGRES_USER: ecomate
-      POSTGRES_PASSWORD: ecomate_password
-      POSTGRES_DB: ecomate_db
+      MYSQL_ROOT_PASSWORD: ecomate_root_password
+      MYSQL_DATABASE: ecomate_db
+      MYSQL_USER: ecomate
+      MYSQL_PASSWORD: ecomate_password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     networks:
       - ecomate-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ecomate"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u ecomate -pecomate_password"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,19 +29,19 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - DB_HOST=mysql
+      - DB_PORT=3306
       - DB_USER=ecomate
       - DB_PASSWORD=ecomate_password
       - DB_NAME=ecomate_db
-      - DB_SSLMODE=disable
+      - "DB_PARAMS=parseTime=true&charset=utf8mb4&loc=UTC"
       - JWT_SECRET=your-super-secret-jwt-key-dev
       - JWT_EXPIRATION_HOURS=72
       - AI_SERVICE_URL=ai-service:50051
       - GIN_MODE=debug
       - ENV=development
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
       ai-service:
         condition: service_started
@@ -80,4 +81,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  mysql_data:

@@ -9,9 +9,9 @@ import (
 
 // Follow represents a user following relationship
 type Follow struct {
-	ID          uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	FollowerID  uuid.UUID      `gorm:"type:uuid;not null;index:idx_follow_follower" json:"follower_id"`
-	FollowingID uuid.UUID      `gorm:"type:uuid;not null;index:idx_follow_following" json:"following_id"`
+	ID          uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	FollowerID  uuid.UUID      `gorm:"type:char(36);not null;index:idx_follow_follower" json:"follower_id"`
+	FollowingID uuid.UUID      `gorm:"type:char(36);not null;index:idx_follow_following" json:"following_id"`
 	CreatedAt   time.Time      `json:"created_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 
@@ -22,9 +22,9 @@ type Follow struct {
 
 // ProductShare represents a product share on social media
 type ProductShare struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	UserID    uuid.UUID      `gorm:"type:uuid;not null;index" json:"user_id"`
-	ProductID uuid.UUID      `gorm:"type:uuid;not null;index" json:"product_id"`
+	ID        uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	UserID    uuid.UUID      `gorm:"type:char(36);not null;index" json:"user_id"`
+	ProductID uuid.UUID      `gorm:"type:char(36);not null;index" json:"product_id"`
 	Platform  string         `gorm:"not null" json:"platform"` // twitter, facebook, line, etc.
 	ShareURL  string         `json:"share_url"`
 	CreatedAt time.Time      `json:"created_at"`
@@ -37,11 +37,11 @@ type ProductShare struct {
 
 // UserFeed represents a feed item in user's timeline
 type UserFeed struct {
-	ID          uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	UserID      uuid.UUID      `gorm:"type:uuid;not null;index" json:"user_id"`
-	ActorID     uuid.UUID      `gorm:"type:uuid;not null" json:"actor_id"` // Who performed the action
+	ID          uuid.UUID      `gorm:"type:char(36);primary_key" json:"id"`
+	UserID      uuid.UUID      `gorm:"type:char(36);not null;index" json:"user_id"`
+	ActorID     uuid.UUID      `gorm:"type:char(36);not null" json:"actor_id"` // Who performed the action
 	ActionType  string         `gorm:"not null" json:"action_type"`        // listed, purchased, reviewed, followed
-	TargetID    uuid.UUID      `gorm:"type:uuid" json:"target_id"`         // Product ID or User ID
+	TargetID    uuid.UUID      `gorm:"type:char(36)" json:"target_id"`         // Product ID or User ID
 	TargetType  string         `json:"target_type"`                        // product, user
 	Description string         `gorm:"type:text" json:"description"`
 	CreatedAt   time.Time      `json:"created_at"`

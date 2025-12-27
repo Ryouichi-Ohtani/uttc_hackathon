@@ -15,12 +15,12 @@ const (
 )
 
 type Purchase struct {
-	ID              uuid.UUID      `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID       uuid.UUID      `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID              uuid.UUID      `json:"id" gorm:"type:char(36);primary_key"`
+	ProductID       uuid.UUID      `json:"product_id" gorm:"type:char(36);not null;index"`
 	Product         *Product       `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	BuyerID         uuid.UUID      `json:"buyer_id" gorm:"type:uuid;not null;index"`
+	BuyerID         uuid.UUID      `json:"buyer_id" gorm:"type:char(36);not null;index"`
 	Buyer           *User          `json:"buyer,omitempty" gorm:"foreignKey:BuyerID"`
-	SellerID        uuid.UUID      `json:"seller_id" gorm:"type:uuid;not null;index"`
+	SellerID        uuid.UUID      `json:"seller_id" gorm:"type:char(36);not null;index"`
 	Seller          *User          `json:"seller,omitempty" gorm:"foreignKey:SellerID"`
 	Price           int            `json:"price" gorm:"not null"`
 	CO2SavedKg      float64        `json:"co2_saved_kg" gorm:"type:decimal(10,2);not null"`

@@ -7,8 +7,8 @@ import (
 )
 
 type BlockchainTransaction struct {
-	ID              uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	PurchaseID      uuid.UUID `json:"purchase_id" gorm:"type:uuid;not null;index"`
+	ID              uuid.UUID `json:"id" gorm:"type:char(36);primary_key"`
+	PurchaseID      uuid.UUID `json:"purchase_id" gorm:"type:char(36);not null;index"`
 	Purchase        *Purchase `json:"purchase,omitempty" gorm:"foreignKey:PurchaseID"`
 	TransactionHash string    `json:"transaction_hash" gorm:"uniqueIndex"`
 	BlockNumber     int64     `json:"block_number"`
@@ -20,10 +20,10 @@ type BlockchainTransaction struct {
 }
 
 type NFTOwnership struct {
-	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID   uuid.UUID `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID          uuid.UUID `json:"id" gorm:"type:char(36);primary_key"`
+	ProductID   uuid.UUID `json:"product_id" gorm:"type:char(36);not null;index"`
 	Product     *Product  `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	OwnerID     uuid.UUID `json:"owner_id" gorm:"type:uuid;not null;index"`
+	OwnerID     uuid.UUID `json:"owner_id" gorm:"type:char(36);not null;index"`
 	Owner       *User     `json:"owner,omitempty" gorm:"foreignKey:OwnerID"`
 	TokenID     string    `json:"token_id" gorm:"uniqueIndex"`
 	ContractAddress string `json:"contract_address"`

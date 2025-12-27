@@ -1,26 +1,71 @@
 package infrastructure
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"reflect"
 
+	"github.com/google/uuid"
 	"github.com/yourusername/ecomate/backend/internal/config"
 	"github.com/yourusername/ecomate/backend/internal/domain"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 func NewDatabase(cfg *config.DatabaseConfig) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(cfg.DSN()), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(cfg.DSN()), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	registerUUIDCallbacks(db)
+
 	log.Println("Database connected successfully")
 	return db, nil
+}
+
+func registerUUIDCallbacks(db *gorm.DB) {
+	db.Callback().Create().Before("gorm:create").Register("ecomate:set_uuid", func(tx *gorm.DB) {
+		if tx.Statement == nil || tx.Statement.Schema == nil {
+			return
+		}
+
+		field := tx.Statement.Schema.LookUpField("ID")
+		if field == nil || field.FieldType != reflect.TypeOf(uuid.UUID{}) {
+			return
+		}
+
+		setUUIDIfZero(tx.Statement.Context, field, tx.Statement.ReflectValue)
+	})
+}
+
+func setUUIDIfZero(ctx context.Context, field *schema.Field, value reflect.Value) {
+	if !value.IsValid() {
+		return
+	}
+
+	if value.Kind() == reflect.Ptr {
+		if value.IsNil() {
+			return
+		}
+		value = value.Elem()
+	}
+
+	switch value.Kind() {
+	case reflect.Struct:
+		if _, isZero := field.ValueOf(ctx, value); isZero {
+			_ = field.Set(ctx, value, uuid.New())
+		}
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < value.Len(); i++ {
+			setUUIDIfZero(ctx, field, value.Index(i))
+		}
+	}
 }
 
 func AutoMigrate(db *gorm.DB) error {

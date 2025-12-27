@@ -15,14 +15,14 @@ const (
 )
 
 type Auction struct {
-	ID              uuid.UUID     `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	ProductID       uuid.UUID     `json:"product_id" gorm:"type:uuid;not null;index"`
+	ID              uuid.UUID     `json:"id" gorm:"type:char(36);primary_key"`
+	ProductID       uuid.UUID     `json:"product_id" gorm:"type:char(36);not null;index"`
 	Product         *Product      `json:"product,omitempty" gorm:"foreignKey:ProductID"`
-	SellerID        uuid.UUID     `json:"seller_id" gorm:"type:uuid;not null;index"`
+	SellerID        uuid.UUID     `json:"seller_id" gorm:"type:char(36);not null;index"`
 	StartPrice      int           `json:"start_price" gorm:"not null"`
 	CurrentBid      int           `json:"current_bid" gorm:"default:0"`
 	MinBidIncrement int           `json:"min_bid_increment" gorm:"default:100"`
-	WinnerID        *uuid.UUID    `json:"winner_id" gorm:"type:uuid"`
+	WinnerID        *uuid.UUID    `json:"winner_id" gorm:"type:char(36)"`
 	Winner          *User         `json:"winner,omitempty" gorm:"foreignKey:WinnerID"`
 	Status          AuctionStatus `json:"status" gorm:"default:active"`
 	StartTime       time.Time     `json:"start_time"`
@@ -32,10 +32,10 @@ type Auction struct {
 }
 
 type Bid struct {
-	ID         uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	AuctionID  uuid.UUID  `json:"auction_id" gorm:"type:uuid;not null;index"`
+	ID         uuid.UUID  `json:"id" gorm:"type:char(36);primary_key"`
+	AuctionID  uuid.UUID  `json:"auction_id" gorm:"type:char(36);not null;index"`
 	Auction    *Auction   `json:"auction,omitempty" gorm:"foreignKey:AuctionID"`
-	BidderID   uuid.UUID  `json:"bidder_id" gorm:"type:uuid;not null;index"`
+	BidderID   uuid.UUID  `json:"bidder_id" gorm:"type:char(36);not null;index"`
 	Bidder     *User      `json:"bidder,omitempty" gorm:"foreignKey:BidderID"`
 	Amount     int        `json:"amount" gorm:"not null"`
 	IsWinning  bool       `json:"is_winning" gorm:"default:false"`
